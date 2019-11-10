@@ -15,9 +15,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        /*
         btnLogout.setOnClickListener {
             AuthenticationService.logout(this)
         }
+        */
 
         FirebaseApp.initializeApp(this)
         AuthenticationService.authenticate(this)
@@ -28,8 +30,10 @@ class MainActivity : AppCompatActivity() {
 
         if (requestCode == Constants.RC_SIGN_IN) {
             if (resultCode == Activity.RESULT_OK) {
+                /*
                 val user = AuthenticationService.currentLoginUser
                 txtName.text = user?.displayName
+                */
                 Toast.makeText(this, "已登入", Toast.LENGTH_SHORT).show()
             } else {
                 val response = IdpResponse.fromResultIntent(data)
