@@ -23,6 +23,8 @@ object AuthenticationService {
                 val intent = AuthUI.getInstance()
                     .createSignInIntentBuilder()
                     .setAvailableProviders(authProvider)
+                    .setLogo(R.drawable.logo)
+                    .setTheme(R.style.LoginTheme)
                     .setAlwaysShowSignInMethodScreen(true)
                     .setIsSmartLockEnabled(false)
                     .build()
