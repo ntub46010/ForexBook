@@ -2,4 +2,8 @@
     <string name="app_name">ForexBook</string>
     <string name="facebook_application_id">776315792727800</string>
     <string name="facebook_app_id">776315792727800</string>
+
+    <string name="nav_exchange_rate">匯率表</string>
+    <string name="nav_book">帳簿</string>
+    <string name="nav_report">報表</string>
 </resources>
