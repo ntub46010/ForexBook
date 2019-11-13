@@ -1,6 +1,8 @@
-package com.vincent.forexbook
+package com.vincent.forexbook.entity
 
 import androidx.fragment.app.Fragment
+import com.vincent.forexbook.fragment.EmptyFragment
+import com.vincent.forexbook.fragment.ExchangeRateListFragment
 
 enum class NavigationPage {
     EXCHANGE_RATE, BOOK, REPORT;
@@ -12,7 +14,8 @@ enum class NavigationPage {
             when (page) {
                 EXCHANGE_RATE -> {
                     if (EXCHANGE_RATE.fragment == null) {
-                        EXCHANGE_RATE.fragment = EmptyFragment()
+                        EXCHANGE_RATE.fragment =
+                            ExchangeRateListFragment()
                     }
                     EXCHANGE_RATE.fragment!!
                 }
