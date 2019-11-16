@@ -18,6 +18,8 @@ import kotlinx.android.synthetic.main.fragment_exchange_rate_list.*
 
 class ExchangeRateListFragment : Fragment() {
 
+    private var selectedBank = Bank.FUBON
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         return inflater.inflate(R.layout.fragment_exchange_rate_list, container, false)
@@ -27,7 +29,11 @@ class ExchangeRateListFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         listExchangeRate.layoutManager = LinearLayoutManager(context)
 
-        loadExchangeRate(Bank.FUBON)
+        prgBar.visibility = View.VISIBLE
+        loadExchangeRate(selectedBank)
+
+        swipeRefreshLayout.setColorSchemeColors(resources.getColor(R.color.colorPrimary, activity?.theme))
+        swipeRefreshLayout.setOnRefreshListener { loadExchangeRate(selectedBank) }
     }
 
     private fun loadExchangeRate(bank: Bank) {
@@ -40,6 +46,8 @@ class ExchangeRateListFragment : Fragment() {
 
             override fun onException(e: Exception) {
                 activity?.runOnUiThread {
+                    swipeRefreshLayout.isRefreshing = false
+                    prgBar.visibility = View.GONE
                     Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
                 }
             }
@@ -49,6 +57,8 @@ class ExchangeRateListFragment : Fragment() {
     }
 
     private fun displayExchangeRate(exchangeRates: List<ExchangeRate>) {
+        swipeRefreshLayout.isRefreshing = false
+        prgBar.visibility = View.GONE
         val adapter = listExchangeRate.adapter
 
         if (adapter == null) {

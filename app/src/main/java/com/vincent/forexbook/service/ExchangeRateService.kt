@@ -15,6 +15,7 @@ object ExchangeRateService {
             override fun onFinish(data: String?) {
                 val htmlContent = data ?: ""
                 val exchangeRates = parseHtmlToEntities(htmlContent)
+                    .sortedBy { it.currencyType.ordinal }
                 uiCallback.onFinish(exchangeRates)
             }
 
