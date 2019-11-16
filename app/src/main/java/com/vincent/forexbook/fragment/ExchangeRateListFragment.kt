@@ -7,13 +7,13 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.vincent.forexbook.ExchangeRateClient
-import com.vincent.forexbook.ExchangeRateListAdapter
+import com.vincent.forexbook.adapter.ExchangeRateListAdapter
 import com.vincent.forexbook.GeneralCallback
 import com.vincent.forexbook.R
 import com.vincent.forexbook.entity.Bank
 import com.vincent.forexbook.entity.CurrencyType
 import com.vincent.forexbook.entity.ExchangeRate
+import com.vincent.forexbook.service.ExchangeRateService
 import kotlinx.android.synthetic.main.fragment_exchange_rate_list.*
 
 class ExchangeRateListFragment : Fragment() {
@@ -34,7 +34,7 @@ class ExchangeRateListFragment : Fragment() {
         val callback = object : GeneralCallback<List<ExchangeRate>> {
             override fun onFinish(data: List<ExchangeRate>?) {
                 activity?.runOnUiThread {
-                    displayExchangeRate(data!!)
+                    displayExchangeRate(data ?: emptyList())
                 }
             }
 
@@ -45,7 +45,7 @@ class ExchangeRateListFragment : Fragment() {
             }
         }
 
-        ExchangeRateClient.loadExchangeRate(bank, callback)
+        ExchangeRateService.loadExchangeRate(bank, callback)
     }
 
     private fun displayExchangeRate(exchangeRates: List<ExchangeRate>) {

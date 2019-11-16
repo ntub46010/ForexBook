@@ -1,4 +1,4 @@
-package com.vincent.forexbook
+package com.vincent.forexbook.adapter
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,7 +6,9 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.vincent.forexbook.R
 import com.vincent.forexbook.entity.ExchangeRate
+import com.vincent.forexbook.util.FormatUtils
 
 class ExchangeRateListAdapter(var exchangeRates: List<ExchangeRate>)
     : RecyclerView.Adapter<ExchangeRateListAdapter.ViewHolder>() {

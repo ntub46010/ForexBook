@@ -1,33 +1,29 @@
-package com.vincent.forexbook
+package com.vincent.forexbook.service
 
+import com.vincent.forexbook.NetworkClient
+import com.vincent.forexbook.GeneralCallback
 import com.vincent.forexbook.entity.Bank
 import com.vincent.forexbook.entity.CurrencyType
 import com.vincent.forexbook.entity.ExchangeRate
-import okhttp3.*
 import org.jsoup.Jsoup
-import java.io.IOException
 
-object ExchangeRateClient {
+object ExchangeRateService {
 
-    private val client = OkHttpClient().newBuilder().build()
+    fun loadExchangeRate(bank: Bank, uiCallback: GeneralCallback<List<ExchangeRate>>) {
 
-    fun loadExchangeRate(bank: Bank, callback: GeneralCallback<List<ExchangeRate>>) {
-        val request = Request.Builder()
-            .url(bank.exchangeRateUrl)
-            .build()
+        val networkCallback = object : GeneralCallback<String> {
+            override fun onFinish(data: String?) {
+                val htmlContent = data ?: ""
+                val exchangeRates = parseHtmlToEntities(htmlContent)
+                uiCallback.onFinish(exchangeRates)
+            }
 
-        client.newCall(request)
-            .enqueue(object : Callback {
-                override fun onResponse(call: Call, response: Response) {
-                    val htmlContent = response.body?.string() ?: ""
-                    val exchangeRates = parseHtmlToEntities(htmlContent)
-                    callback.onFinish(exchangeRates)
-                }
+            override fun onException(e: Exception) {
+                uiCallback.onException(e)
+            }
+        }
 
-                override fun onFailure(call: Call, e: IOException) {
-                    callback.onException(e)
-                }
-            })
+        NetworkClient.loadExchangeRate(bank.exchangeRateUrl, networkCallback)
     }
 
     private fun parseHtmlToEntities(htmlContent: String): List<ExchangeRate> {
@@ -50,5 +46,4 @@ object ExchangeRateClient {
             }
             .toList()
     }
-
 }
