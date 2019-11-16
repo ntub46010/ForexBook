@@ -4,15 +4,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/widget_default_spacing"
+    app:cardCornerRadius="@dimen/card_corner_radius">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/parent_default_padding">
+        android:padding="@dimen/parent_default_padding"
+        android:background="@color/list_item_background_dark">
 
         <ImageView
-            android:id="@+id/imgCurrency"
+            android:id="@+id/imgIcon"
             android:layout_width="40dp"
             android:layout_height="40dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -21,7 +24,7 @@
             tools:ignore="ContentDescription" />
 
         <TextView
-            android:id="@+id/txtCurrencyTitle"
+            android:id="@+id/txtTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="15dp"
@@ -29,8 +32,8 @@
             android:textColor="@color/black3"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/imgCurrency"
-            app:layout_constraintTop_toTopOf="@+id/imgCurrency" />
+            app:layout_constraintStart_toEndOf="@+id/imgIcon"
+            app:layout_constraintTop_toTopOf="@+id/imgIcon" />
 
         <TextView
             android:id="@+id/txtCredit"
@@ -38,23 +41,23 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="15dp"
             android:includeFontPadding="false"
-            android:textColor="@color/black3"
+            android:textColor="@color/amount_credit"
             android:textSize="16sp"
-            app:layout_constraintBottom_toBottomOf="@+id/imgCurrency"
-            app:layout_constraintStart_toEndOf="@+id/imgCurrency" />
+            app:layout_constraintBottom_toBottomOf="@+id/imgIcon"
+            app:layout_constraintStart_toEndOf="@+id/imgIcon" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.57" />
+            app:layout_constraintGuide_percent="0.6" />
 
         <TextView
             android:id="@+id/txtDebit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/black3"
+            android:textColor="@color/amount_debit"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="@+id/txtCredit"
             app:layout_constraintStart_toStartOf="@+id/guideline" />
