@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="parent_default_padding">10dp</dimen>
+    <dimen name="widget_default_spacing">8dp</dimen>
+    <dimen name="card_corner_radius">8dp</dimen>
+</resources>

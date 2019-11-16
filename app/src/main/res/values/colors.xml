@@ -5,4 +5,10 @@
     <color name="colorAccent">#D81B60</color>
 
     <color name="lightGray">#DDDDDD</color>
+    <color name="black3">#444444</color>
+
+    <color name="list_item_background_dark">#FFE0E0</color>
+
+    <color name="amount_credit">#4444FF</color>
+    <color name="amount_debit">#FF4444</color>
 </resources>

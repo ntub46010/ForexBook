@@ -8,6 +8,8 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.firebase.ui.auth.IdpResponse
 import com.google.firebase.FirebaseApp
+import com.vincent.forexbook.entity.NavigationPage
+import com.vincent.forexbook.fragment.EmptyFragment
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
