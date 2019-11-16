@@ -18,4 +18,9 @@ enum class CurrencyType(val chineseName: String,
     NZD("紐元", R.drawable.flag_nzd),
     SEK("瑞典幣", R.drawable.flag_sek),
     THB("泰幣", R.drawable.flag_thb);
+
+    fun getTitle(): String {
+        return "$chineseName $name"
+    }
+
 }

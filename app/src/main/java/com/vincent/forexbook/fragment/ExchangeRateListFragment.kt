@@ -4,9 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.vincent.forexbook.ExchangeRateClient
 import com.vincent.forexbook.ExchangeRateListAdapter
+import com.vincent.forexbook.GeneralCallback
 import com.vincent.forexbook.R
 import com.vincent.forexbook.entity.Bank
 import com.vincent.forexbook.entity.CurrencyType
@@ -28,7 +31,35 @@ class ExchangeRateListFragment : Fragment() {
     }
 
     private fun loadExchangeRate(bank: Bank) {
-        val rates = listOf(
+        val callback = object : GeneralCallback<List<ExchangeRate>> {
+            override fun onFinish(data: List<ExchangeRate>?) {
+                activity?.runOnUiThread {
+                    displayExchangeRate(data!!)
+                }
+            }
+
+            override fun onException(e: Exception) {
+                activity?.runOnUiThread {
+                    Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        ExchangeRateClient.loadExchangeRate(bank, callback)
+    }
+
+    private fun displayExchangeRate(exchangeRates: List<ExchangeRate>) {
+        val adapter = listExchangeRate.adapter
+
+        if (adapter == null) {
+            listExchangeRate.adapter = ExchangeRateListAdapter(exchangeRates)
+        } else {
+            (adapter as ExchangeRateListAdapter).refreshData(exchangeRates)
+        }
+    }
+
+    private fun getMockExchangeRate() =
+        listOf(
             ExchangeRate(CurrencyType.USD, 30.5810, 30.4810),
             ExchangeRate(CurrencyType.CNY, 4.3807, 4.3307),
             ExchangeRate(CurrencyType.JPY, 0.2828, 0.2792),
@@ -44,7 +75,4 @@ class ExchangeRateListFragment : Fragment() {
             ExchangeRate(CurrencyType.SEK, 3.1861, 3.1261),
             ExchangeRate(CurrencyType.THB, 1.0301, 0.9901)
         )
-
-        listExchangeRate.adapter = ExchangeRateListAdapter(rates)
-    }
 }
