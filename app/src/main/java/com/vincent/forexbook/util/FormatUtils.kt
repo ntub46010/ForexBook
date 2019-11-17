@@ -1,4 +1,4 @@
-package com.vincent.forexbook
+package com.vincent.forexbook.util
 
 import java.util.*
 

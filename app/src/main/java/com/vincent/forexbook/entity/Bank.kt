@@ -4,7 +4,7 @@ enum class Bank(val chineseName: String,
                 val exchangeRateUrl: String,
                 private val supportingCurrency: List<CurrencyType>) {
 
-    FUBON("富邦銀行", "https://www.findrate.tw/bank/8/#.XHv2PKBS8dU",
+    FUBON("富邦銀行", "https://www.findrate.tw/bank/8/",
         listOf(
             CurrencyType.USD,
             CurrencyType.CNY,
@@ -22,7 +22,7 @@ enum class Bank(val chineseName: String,
             CurrencyType.THB
         )),
 
-    TAISHIN("台新銀行", "https://www.findrate.tw/bank/9/#.XM5YhthS8dU",
+    TAISHIN("台新銀行", "https://www.findrate.tw/bank/9/",
         listOf(
             CurrencyType.USD,
             CurrencyType.CNY,
@@ -40,7 +40,7 @@ enum class Bank(val chineseName: String,
             CurrencyType.THB
         )),
 
-    RICHART("台新銀行（Richart）", "https://www.findrate.tw/bank/9/#.XM5YhthS8dU",
+    RICHART("台新銀行（Richart）", "https://www.findrate.tw/bank/9/",
         listOf(
             CurrencyType.USD,
             CurrencyType.CNY,

@@ -1,4 +1,4 @@
-package com.vincent.forexbook
+package com.vincent.forexbook.activity
 
 import android.app.Activity
 import android.content.Intent
@@ -8,8 +8,11 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.firebase.ui.auth.IdpResponse
 import com.google.firebase.FirebaseApp
+import com.vincent.forexbook.Constants
+import com.vincent.forexbook.R
 import com.vincent.forexbook.entity.NavigationPage
 import com.vincent.forexbook.fragment.EmptyFragment
+import com.vincent.forexbook.service.AuthenticationService
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {

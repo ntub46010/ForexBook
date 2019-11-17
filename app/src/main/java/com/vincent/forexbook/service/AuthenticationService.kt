@@ -1,4 +1,4 @@
-package com.vincent.forexbook
+package com.vincent.forexbook.service
 
 import android.app.Activity
 import android.content.Context
@@ -6,6 +6,8 @@ import android.widget.Toast
 import com.firebase.ui.auth.AuthUI
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.vincent.forexbook.Constants
+import com.vincent.forexbook.R
 
 object AuthenticationService {
 

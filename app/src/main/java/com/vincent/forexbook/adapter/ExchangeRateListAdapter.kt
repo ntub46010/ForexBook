@@ -1,4 +1,4 @@
-package com.vincent.forexbook
+package com.vincent.forexbook.adapter
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,7 +6,9 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.vincent.forexbook.R
 import com.vincent.forexbook.entity.ExchangeRate
+import com.vincent.forexbook.util.FormatUtils
 
 class ExchangeRateListAdapter(var exchangeRates: List<ExchangeRate>)
     : RecyclerView.Adapter<ExchangeRateListAdapter.ViewHolder>() {
@@ -26,6 +28,11 @@ class ExchangeRateListAdapter(var exchangeRates: List<ExchangeRate>)
         holder.bindView(exchangeRate)
     }
 
+    fun refreshData(exchangeRates: List<ExchangeRate>) {
+        this.exchangeRates = exchangeRates
+        notifyDataSetChanged()
+    }
+
     inner class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {
         private val imgIcon = v.findViewById<ImageView>(R.id.imgIcon)
         private val txtTitle = v.findViewById<TextView>(R.id.txtTitle)
@@ -34,7 +41,7 @@ class ExchangeRateListAdapter(var exchangeRates: List<ExchangeRate>)
 
         fun bindView(exchangeRate: ExchangeRate) {
             imgIcon.setImageResource(exchangeRate.currencyType.iconRes)
-            txtTitle.text = exchangeRate.currencyType.chineseName
+            txtTitle.text = exchangeRate.currencyType.getTitle()
             txtCredit.text = FormatUtils.formatDecimalPlaces(exchangeRate.credit, 4)
             txtDebit.text = FormatUtils.formatDecimalPlaces(exchangeRate.debit, 4)
         }
