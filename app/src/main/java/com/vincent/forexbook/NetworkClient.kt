@@ -1,15 +1,51 @@
 package com.vincent.forexbook
 
 import okhttp3.*
+import java.io.File
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 object NetworkClient {
 
-    private val client = OkHttpClient().newBuilder().build()
+    private val client: OkHttpClient
 
-    fun loadExchangeRate(url: String, callback: GeneralCallback<String>) {
+    private val cacheInterceptor = object : Interceptor {
+        override fun intercept(chain: Interceptor.Chain): Response {
+            val request = chain.request()
+            val response = chain.proceed(request)
+
+            val responseBuilder = response.newBuilder()
+                .removeHeader("Pragma")
+                .removeHeader("Cache-Control")
+
+            val maxAge = request.cacheControl.maxAgeSeconds
+            if (maxAge > 0) {
+                responseBuilder.header("Cache-Control", "max-age=$maxAge")
+            }
+
+            return responseBuilder.build()
+        }
+    }
+
+    init {
+        val application = MyApplication.INSTANCE
+        val cacheFile = File(application.cacheDir, application.packageName)
+        val clientCache = Cache(cacheFile, 1024 * 1024)
+
+        client = OkHttpClient().newBuilder()
+            .cache(clientCache)
+            .addNetworkInterceptor(cacheInterceptor)
+            .build()
+    }
+
+    fun loadExchangeRate(url: String, cacheLifeTimeMill: Int, callback: GeneralCallback<String>) {
+        val cacheControl = CacheControl.Builder()
+            .maxAge(cacheLifeTimeMill, TimeUnit.MILLISECONDS)
+            .build()
+
         val request = Request.Builder()
             .url(url)
+            .cacheControl(cacheControl)
             .build()
 
         client.newCall(request)
