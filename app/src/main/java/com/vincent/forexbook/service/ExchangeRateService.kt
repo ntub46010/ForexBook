@@ -14,29 +14,33 @@ import java.util.*
 
 object ExchangeRateService {
 
-    private val exchangeRateCache = EnumMap<Bank, CacheData<List<ExchangeRate>>>(Bank::class.java)
+    private val exchangeRateCache = EnumMap<Bank, CacheData<Map<CurrencyType, ExchangeRate>>>(Bank::class.java)
+    private const val updateInterval = 3
 
     fun loadExchangeRate(bank: Bank, uiCallback: GeneralCallback<List<ExchangeRate>>) {
         val cacheData = getCacheData(bank)
         if (cacheData != null) {
-            println("=====\nUse cache data\n=====")
-            uiCallback.onFinish(cacheData)
+            uiCallback.onFinish(cacheData.values.toList())
             return
         }
 
-        println("=====\nRequest network resource\n=====")
         val now = Date()
-        val cacheExpiredTime = getCacheExpiredTime(now)
+        val cacheExpiredTime = calcCacheExpiredTime(now)
         val cacheLifeTime = cacheExpiredTime.minus(now).toInt()
 
         val networkCallback = object : GeneralCallback<String> {
             override fun onFinish(data: String?) {
                 val htmlContent = data ?: ""
-                val exchangeRates = parseHtmlToEntities(htmlContent)
+
+                val exchangeRateList = parseHtmlToEntities(htmlContent)
                     .sortedBy { it.currencyType.ordinal }
 
-                saveCacheData(bank, CacheData(exchangeRates, cacheExpiredTime))
-                uiCallback.onFinish(exchangeRates)
+                val exchangeRateMap = exchangeRateList
+                    .map { it.currencyType to it }
+                    .toMap()
+
+                saveCacheData(bank, CacheData(exchangeRateMap, cacheExpiredTime))
+                uiCallback.onFinish(exchangeRateList)
             }
 
             override fun onException(e: Exception) {
@@ -47,7 +51,7 @@ object ExchangeRateService {
         NetworkClient.loadExchangeRate(bank.exchangeRateUrl, cacheLifeTime, networkCallback)
     }
 
-    private fun getCacheData(bank: Bank): List<ExchangeRate>? {
+    private fun getCacheData(bank: Bank): Map<CurrencyType, ExchangeRate>? {
         val cache = exchangeRateCache[bank]
 
         return when {
@@ -60,16 +64,19 @@ object ExchangeRateService {
         }
     }
 
-    private fun saveCacheData(bank: Bank, cacheData: CacheData<List<ExchangeRate>>) {
+    private fun saveCacheData(bank: Bank, cacheData: CacheData<Map<CurrencyType, ExchangeRate>>) {
         exchangeRateCache[bank] = cacheData
     }
 
-    private fun getCacheExpiredTime(now: Date): Date {
+    private fun calcCacheExpiredTime(now: Date): Date {
         val c = Calendar.getInstance()
         c.time = now
 
-        return if (c.get(Calendar.MINUTE) in 3..57) {
-                now.nextClock().addMinutes(-3)
+        val intervalStart = updateInterval
+        val intervalEnd = 60 - updateInterval
+
+        return if (c.get(Calendar.MINUTE) in intervalStart..intervalEnd) {
+                now.nextClock().addMinutes(-updateInterval)
             } else {
                 now
             }
