@@ -19,7 +19,7 @@ object NetworkClient {
                 .removeHeader("Cache-Control")
 
             val maxAge = request.cacheControl.maxAgeSeconds
-            if (maxAge != 0) {
+            if (maxAge > 0) {
                 responseBuilder.header("Cache-Control", "max-age=$maxAge")
             }
 
@@ -38,9 +38,9 @@ object NetworkClient {
             .build()
     }
 
-    fun loadExchangeRate(url: String, callback: GeneralCallback<String>) {
+    fun loadExchangeRate(url: String, cacheLifeTimeMill: Int, callback: GeneralCallback<String>) {
         val cacheControl = CacheControl.Builder()
-            .maxAge(10, TimeUnit.SECONDS)
+            .maxAge(cacheLifeTimeMill, TimeUnit.MILLISECONDS)
             .build()
 
         val request = Request.Builder()

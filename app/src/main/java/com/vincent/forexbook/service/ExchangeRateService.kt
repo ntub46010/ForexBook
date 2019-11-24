@@ -6,9 +6,11 @@ import com.vincent.forexbook.GeneralCallback
 import com.vincent.forexbook.entity.Bank
 import com.vincent.forexbook.entity.CurrencyType
 import com.vincent.forexbook.entity.ExchangeRate
+import com.vincent.forexbook.util.addMinutes
+import com.vincent.forexbook.util.minus
+import com.vincent.forexbook.util.nextClock
 import org.jsoup.Jsoup
 import java.util.*
-import kotlin.math.ceil
 
 object ExchangeRateService {
 
@@ -17,19 +19,23 @@ object ExchangeRateService {
     fun loadExchangeRate(bank: Bank, uiCallback: GeneralCallback<List<ExchangeRate>>) {
         val cacheData = getCacheData(bank)
         if (cacheData != null) {
-            println("============\nUse cache data\n============")
+            println("=====\nUse cache data\n=====")
             uiCallback.onFinish(cacheData)
             return
         }
 
-        println("============\nRequest network resource\n============")
+        println("=====\nRequest network resource\n=====")
+        val now = Date()
+        val cacheExpiredTime = getCacheExpiredTime(now)
+        val cacheLifeTime = cacheExpiredTime.minus(now).toInt()
+
         val networkCallback = object : GeneralCallback<String> {
             override fun onFinish(data: String?) {
                 val htmlContent = data ?: ""
                 val exchangeRates = parseHtmlToEntities(htmlContent)
                     .sortedBy { it.currencyType.ordinal }
 
-                saveCacheData(bank, exchangeRates)
+                saveCacheData(bank, CacheData(exchangeRates, cacheExpiredTime))
                 uiCallback.onFinish(exchangeRates)
             }
 
@@ -38,25 +44,35 @@ object ExchangeRateService {
             }
         }
 
-        NetworkClient.loadExchangeRate(bank.exchangeRateUrl, networkCallback)
+        NetworkClient.loadExchangeRate(bank.exchangeRateUrl, cacheLifeTime, networkCallback)
     }
 
     private fun getCacheData(bank: Bank): List<ExchangeRate>? {
         val cache = exchangeRateCache[bank]
 
-        if (cache == null) {
-            return null
-        } else if (cache.isExpired()) {
-            exchangeRateCache.remove(bank)
-            return null
-        } else {
-            return cache.data
+        return when {
+            cache == null -> null
+            cache.isExpired() -> {
+                exchangeRateCache.remove(bank)
+                null
+            }
+            else -> cache.data
         }
     }
 
-    private fun saveCacheData(bank: Bank, exchangeRates: List<ExchangeRate>) {
+    private fun saveCacheData(bank: Bank, cacheData: CacheData<List<ExchangeRate>>) {
+        exchangeRateCache[bank] = cacheData
+    }
 
-        println("============\nSave cache\n============")
+    private fun getCacheExpiredTime(now: Date): Date {
+        val c = Calendar.getInstance()
+        c.time = now
+
+        return if (c.get(Calendar.MINUTE) in 3..57) {
+                now.nextClock().addMinutes(-3)
+            } else {
+                now
+            }
     }
 
     private fun parseHtmlToEntities(htmlContent: String): List<ExchangeRate> {
