@@ -38,9 +38,10 @@ object NetworkClient {
             .build()
     }
 
-    fun loadExchangeRate(url: String, cacheLifeTimeMill: Int, callback: GeneralCallback<String>) {
+    fun loadExchangeRate(url: String, cacheMaxAgeTimeMill: Int, callback: GeneralCallback<String>) {
+        val timeToLive = if (cacheMaxAgeTimeMill < 0) 0 else cacheMaxAgeTimeMill
         val cacheControl = CacheControl.Builder()
-            .maxAge(cacheLifeTimeMill, TimeUnit.MILLISECONDS)
+            .maxAge(timeToLive, TimeUnit.MILLISECONDS)
             .build()
 
         val request = Request.Builder()

@@ -1,6 +1,7 @@
 package com.vincent.forexbook.service
 
 import com.vincent.forexbook.CacheData
+import com.vincent.forexbook.Constants
 import com.vincent.forexbook.NetworkClient
 import com.vincent.forexbook.GeneralCallback
 import com.vincent.forexbook.entity.Bank
@@ -26,7 +27,7 @@ object ExchangeRateService {
 
         val now = Date()
         val cacheExpiredTime = calcCacheExpiredTime(now)
-        val cacheLifeTime = cacheExpiredTime.minus(now).toInt()
+        val cacheMaxAgeTimeMill = cacheExpiredTime.minus(now).toInt()
 
         val networkCallback = object : GeneralCallback<String> {
             override fun onFinish(data: String?) {
@@ -34,6 +35,9 @@ object ExchangeRateService {
 
                 val exchangeRateList = parseHtmlToEntities(htmlContent)
                     .sortedBy { it.currencyType.ordinal }
+                if (bank == Bank.RICHART) {
+                    calcRichartExchangeRate(exchangeRateList)
+                }
 
                 val exchangeRateMap = exchangeRateList
                     .map { it.currencyType to it }
@@ -48,7 +52,50 @@ object ExchangeRateService {
             }
         }
 
-        NetworkClient.loadExchangeRate(bank.exchangeRateUrl, cacheLifeTime, networkCallback)
+        NetworkClient.loadExchangeRate(bank.exchangeRateUrl, cacheMaxAgeTimeMill, networkCallback)
+    }
+
+    private fun calcRichartExchangeRate(exchangeRates: List<ExchangeRate>): List<ExchangeRate> {
+        for (rate in exchangeRates) {
+            when (rate.currencyType) {
+                CurrencyType.USD -> {
+                    rate.credit -= Constants.RICHART_DISCOUNT_USD
+                    rate.debit += Constants.RICHART_DISCOUNT_USD
+                }
+                CurrencyType.JPY -> {
+                    rate.credit -= Constants.RICHART_DISCOUNT_JPY
+                    rate.debit += Constants.RICHART_DISCOUNT_JPY
+                }
+                CurrencyType.GBP -> {
+                    rate.credit -= Constants.RICHART_DISCOUNT_GBP
+                    rate.debit += Constants.RICHART_DISCOUNT_GBP
+                }
+                CurrencyType.CNY -> {
+                    rate.credit -= Constants.RICHART_DISCOUNT_CNY
+                    rate.debit += Constants.RICHART_DISCOUNT_CNY
+                }
+                CurrencyType.EUR -> {
+                    rate.credit -= Constants.RICHART_DISCOUNT_EUR
+                    rate.debit += Constants.RICHART_DISCOUNT_EUR
+                }
+                CurrencyType.HKD -> {
+                    rate.credit -= Constants.RICHART_DISCOUNT_HKD
+                    rate.debit += Constants.RICHART_DISCOUNT_HKD
+                }
+                CurrencyType.AUD -> {
+                    rate.credit -= Constants.RICHART_DISCOUNT_AUD
+                    rate.debit += Constants.RICHART_DISCOUNT_AUD
+                }
+                else -> {
+                    // 優惠 = ( 牌告 - 中價 ) * 0.4
+                    val discount = (rate.credit - rate.debit) / 5
+                    rate.credit -= discount
+                    rate.debit += discount
+                }
+            }
+        }
+
+        return exchangeRates
     }
 
     private fun getCacheData(bank: Bank): Map<CurrencyType, ExchangeRate>? {
@@ -87,7 +134,7 @@ object ExchangeRateService {
             .select("div[id=right]")
             .select("table>tbody>tr")
             .drop(1)
-            .dropLast(4)
+            .dropLast(6)
 
         return tableRows.asSequence()
             .map {

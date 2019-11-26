@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -34,6 +36,23 @@ class ExchangeRateListFragment : Fragment() {
 
         swipeRefreshLayout.setColorSchemeColors(resources.getColor(R.color.colorPrimary, activity?.theme))
         swipeRefreshLayout.setOnRefreshListener { loadExchangeRate(selectedBank) }
+
+        val bankNames = Bank.getChineseNames()
+        val adapter = ArrayAdapter(context!!, android.R.layout.simple_spinner_dropdown_item, bankNames)
+        spinnerBank.setSelection(0)
+        spinnerBank.adapter = adapter
+        spinnerBank.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+
+            }
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                selectedBank = Bank.findByChineseName(bankNames[position])!!
+                prgBar.visibility = View.VISIBLE
+                listExchangeRate.visibility = View.INVISIBLE
+                loadExchangeRate(selectedBank)
+            }
+        }
     }
 
     private fun loadExchangeRate(bank: Bank) {
@@ -47,7 +66,7 @@ class ExchangeRateListFragment : Fragment() {
             override fun onException(e: Exception) {
                 activity?.runOnUiThread {
                     swipeRefreshLayout.isRefreshing = false
-                    prgBar.visibility = View.GONE
+                    prgBar.visibility = View.INVISIBLE
                     Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
                 }
             }
@@ -58,7 +77,8 @@ class ExchangeRateListFragment : Fragment() {
 
     private fun displayExchangeRate(exchangeRates: List<ExchangeRate>) {
         swipeRefreshLayout.isRefreshing = false
-        prgBar.visibility = View.GONE
+        prgBar.visibility = View.INVISIBLE
+        listExchangeRate.visibility = View.VISIBLE
         val adapter = listExchangeRate.adapter
 
         if (adapter == null) {
