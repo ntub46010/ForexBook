@@ -133,8 +133,7 @@ object ExchangeRateService {
         val tableRows = Jsoup.parse(htmlContent)
             .select("div[id=right]")
             .select("table>tbody>tr")
-            .drop(1)
-            .dropLast(6)
+            .filter{ it.select("td").size == 5 }
 
         return tableRows.asSequence()
             .map {

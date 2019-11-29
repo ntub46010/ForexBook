@@ -3,6 +3,8 @@ package com.vincent.forexbook
 object Constants {
     const val RC_SIGN_IN = 1
 
+    const val KEY_DEFAULT_BANK = "defaultBank"
+
     const val RICHART_DISCOUNT_USD = 0.03
     const val RICHART_DISCOUNT_JPY = 0.0008
     const val RICHART_DISCOUNT_GBP = 0.09
