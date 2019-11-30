@@ -4,21 +4,41 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="@dimen/parent_default_padding">
+    android:paddingTop="@dimen/parent_default_padding"
+    android:paddingStart="@dimen/parent_default_padding"
+    android:paddingEnd="@dimen/parent_default_padding">
+
+    <CheckBox
+        android:id="@+id/checkDefaultBank"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/default_bank"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/swipeRefreshLayout" />
+
+    <Spinner
+        android:id="@+id/spinnerBank"
+        android:layout_width="wrap_content"
+        android:layout_height="32dp"
+        android:background="@drawable/spinner_background"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="270dp"
         android:layout_height="0dp"
+        android:layout_marginTop="@dimen/widget_default_spacing"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" >
+        app:layout_constraintTop_toBottomOf="@+id/checkDefaultBank">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/listExchangeRate"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

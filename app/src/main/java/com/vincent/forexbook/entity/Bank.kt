@@ -56,4 +56,16 @@ enum class Bank(val chineseName: String,
             CurrencyType.NZD,
             CurrencyType.SEK
         ));
+
+    companion object {
+        fun getChineseNames() =
+            values().asSequence()
+                .map { it.chineseName }
+                .toList()
+
+        fun findByChineseName(chineseName: String) =
+            values().asSequence()
+                .filter { it.chineseName == chineseName }
+                .firstOrNull()
+    }
 }
