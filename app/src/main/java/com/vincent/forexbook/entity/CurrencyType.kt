@@ -2,8 +2,8 @@ package com.vincent.forexbook.entity
 
 import com.vincent.forexbook.R
 
-enum class CurrencyType(val chineseName: String,
-                        val iconRes: Int) {
+enum class CurrencyType(private val chineseName: String,
+                        val iconResource: Int) {
     USD("美金", R.drawable.flag_usd),
     CNY("人民幣", R.drawable.flag_cny),
     JPY("日幣", R.drawable.flag_jpy),

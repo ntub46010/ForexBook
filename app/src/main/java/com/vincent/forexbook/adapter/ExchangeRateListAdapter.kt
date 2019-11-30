@@ -40,7 +40,7 @@ class ExchangeRateListAdapter(var exchangeRates: List<ExchangeRate>)
         private val txtDebit = v.findViewById<TextView>(R.id.txtDebit)
 
         fun bindView(exchangeRate: ExchangeRate) {
-            imgIcon.setImageResource(exchangeRate.currencyType.iconRes)
+            imgIcon.setImageResource(exchangeRate.currencyType.iconResource)
             txtTitle.text = exchangeRate.currencyType.getTitle()
             txtCredit.text = FormatUtils.formatDecimalPlaces(exchangeRate.credit, 4)
             txtDebit.text = FormatUtils.formatDecimalPlaces(exchangeRate.debit, 4)
