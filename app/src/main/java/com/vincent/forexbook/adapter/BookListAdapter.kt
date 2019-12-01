@@ -11,7 +11,7 @@ import com.vincent.forexbook.R
 import com.vincent.forexbook.entity.Book
 
 class BookListAdapter(private val context: Context,
-                      private val books: List<Book>) : BaseAdapter() {
+                      private val books: MutableList<Book>) : BaseAdapter() {
 
     override fun getItem(position: Int): Any {
         return books[position]
@@ -37,6 +37,11 @@ class BookListAdapter(private val context: Context,
         txtName.text = book.name
 
         return bookView
+    }
+
+    fun addItem(book: Book) {
+        books.add(book)
+        notifyDataSetChanged()
     }
 
 }

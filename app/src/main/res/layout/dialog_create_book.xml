@@ -5,7 +5,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/parent_default_padding">
+    android:paddingTop="@dimen/parent_default_padding"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp">
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilBookName"
@@ -26,21 +28,19 @@
 
     <Spinner
         android:id="@+id/spinnerBank"
-        android:layout_width="wrap_content"
+        android:layout_width="@dimen/spinner_default_width"
         android:layout_height="@dimen/spinner_default_height"
         android:layout_marginTop="@dimen/widget_default_spacing"
         android:background="@drawable/spinner_background"
-        android:entries="@array/bank_mock_data"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tilBookName" />
 
     <Spinner
         android:id="@+id/spinnerCurrencyType"
-        android:layout_width="wrap_content"
+        android:layout_width="@dimen/spinner_default_width"
         android:layout_height="@dimen/spinner_default_height"
         android:layout_marginTop="@dimen/widget_default_spacing"
         android:background="@drawable/spinner_background"
-        android:entries="@array/currency_type_mock_data"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/spinnerBank" />
 

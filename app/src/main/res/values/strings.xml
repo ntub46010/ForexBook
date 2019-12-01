@@ -10,16 +10,11 @@
     <string name="default_bank">預設瀏覽銀行</string>
     <string name="book_name">帳簿名稱</string>
 
-    <string-array name="bank_mock_data">
-        <item>富邦</item>
-        <item>台新</item>
-        <item>王道</item>
-    </string-array>
+    <string name="ok">確定</string>
+    <string name="cancel">取消</string>
+    <string name="mandatory_field">必填欄位</string>
 
-    <string-array name="currency_type_mock_data">
-        <item>美金 USD</item>
-        <item>人民幣 CNY</item>
-        <item>日圓 JPY</item>
-    </string-array>
+    <string name="title_create_book">建立帳簿</string>
+    <string name="desc_create_book">請輸入帳簿名稱，並選擇銀行及幣別。</string>
 
 </resources>

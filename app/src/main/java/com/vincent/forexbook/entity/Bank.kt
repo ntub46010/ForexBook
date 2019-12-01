@@ -2,7 +2,7 @@ package com.vincent.forexbook.entity
 
 enum class Bank(val chineseName: String,
                 val exchangeRateUrl: String,
-                private val supportingCurrency: List<CurrencyType>) {
+                val supportingCurrencyType: List<CurrencyType>) {
 
     FUBON("富邦銀行", "https://www.findrate.tw/bank/8/",
         listOf(
