@@ -8,4 +8,18 @@
     <string name="nav_report">報表</string>
 
     <string name="default_bank">預設瀏覽銀行</string>
+    <string name="book_name">帳簿名稱</string>
+
+    <string-array name="bank_mock_data">
+        <item>富邦</item>
+        <item>台新</item>
+        <item>王道</item>
+    </string-array>
+
+    <string-array name="currency_type_mock_data">
+        <item>美金 USD</item>
+        <item>人民幣 CNY</item>
+        <item>日圓 JPY</item>
+    </string-array>
+
 </resources>
