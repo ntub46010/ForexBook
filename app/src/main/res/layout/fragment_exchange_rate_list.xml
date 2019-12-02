@@ -19,8 +19,8 @@
 
     <Spinner
         android:id="@+id/spinnerBank"
-        android:layout_width="wrap_content"
-        android:layout_height="32dp"
+        android:layout_width="@dimen/spinner_default_width"
+        android:layout_height="@dimen/spinner_default_height"
         android:background="@drawable/spinner_background"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

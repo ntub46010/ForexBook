@@ -3,4 +3,6 @@
     <dimen name="parent_default_padding">10dp</dimen>
     <dimen name="widget_default_spacing">8dp</dimen>
     <dimen name="card_corner_radius">8dp</dimen>
+    <dimen name="spinner_default_height">32dp</dimen>
+    <dimen name="spinner_default_width">175dp</dimen>
 </resources>
