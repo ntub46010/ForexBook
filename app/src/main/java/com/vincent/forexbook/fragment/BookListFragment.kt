@@ -1,5 +1,6 @@
 package com.vincent.forexbook.fragment
 
+import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -28,6 +29,7 @@ class BookListFragment : Fragment() {
     private lateinit var spinnerCurrencyType: Spinner
 
     private lateinit var dialogCreateBook: AlertDialog
+    private lateinit var dialogWaiting: Dialog
 
     private val bookItemListener = AdapterView.OnItemClickListener { parent, view, position, id ->
         val book = listBook.adapter.getItem(position) as BookVO
@@ -41,7 +43,7 @@ class BookListFragment : Fragment() {
 
         // button is available after dialog shows
         dialogCreateBook.getButton(DialogInterface.BUTTON_POSITIVE)
-            .setOnClickListener(dialogCreateBookListener)
+            .setOnClickListener(dialogCreateClickListener)
     }
 
     private val spinnerBankListener = object : AdapterView.OnItemSelectedListener {
@@ -69,7 +71,7 @@ class BookListFragment : Fragment() {
         }
     }
 
-    private val dialogCreateBookListener = View.OnClickListener {
+    private val dialogCreateClickListener = View.OnClickListener {
         val name = editBookName.text
         if (name == null || name.isEmpty()) {
             tilBookName.error = context!!.getString(R.string.mandatory_field)
@@ -87,20 +89,20 @@ class BookListFragment : Fragment() {
             createdTime = Date())
 
         dialogCreateBook.dismiss()
-        // TODO: progress dialog show
+        dialogWaiting.show()
         BookService.createBook(request, bookCreatedListener)
     }
 
     private val bookCreatedListener = object : GeneralCallback<BookVO> {
         override fun onFinish(data: BookVO?) {
             Toast.makeText(context!!, context!!.getString(R.string.message_create_successful), Toast.LENGTH_SHORT).show()
-            // TODO: progress dialog dismiss
+            dialogWaiting.dismiss()
             (listBook.adapter as BookListAdapter).addItemToFirst(data!!)
         }
 
         override fun onException(e: Exception) {
             Toast.makeText(context!!, e.message, Toast.LENGTH_SHORT).show()
-            // TODO: progress dialog dismiss
+            dialogWaiting.dismiss()
         }
     }
 
@@ -113,10 +115,11 @@ class BookListFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
 
         initCreateDialog()
+        initWaitingDialog()
         btnCreateBook.setOnClickListener { dialogCreateBook.show() }
         listBook.onItemClickListener = bookItemListener
 
-        // TODO: progress bar visible
+        prgBar.visibility = View.VISIBLE
         loadBooks()
     }
 
@@ -130,7 +133,7 @@ class BookListFragment : Fragment() {
 
             override fun onException(e: Exception) {
                 activity?.runOnUiThread {
-                    //prgBar.visibility = View.INVISIBLE
+                    prgBar.visibility = View.INVISIBLE
                     Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
                 }
             }
@@ -140,7 +143,7 @@ class BookListFragment : Fragment() {
     }
 
     private fun displayBooks(books: List<BookVO>) {
-        // TODO: progress bar invisible
+        prgBar.visibility = View.INVISIBLE
         val adapter = listBook.adapter
 
         if (adapter == null) {
@@ -169,6 +172,12 @@ class BookListFragment : Fragment() {
             .create()
 
         dialogCreateBook.setOnShowListener(dialogShowListener)
+    }
+
+    private fun initWaitingDialog() {
+        dialogWaiting = Dialog(context!!)
+        dialogWaiting.setContentView(R.layout.dialog_waiting)
+        dialogWaiting.setCancelable(false)
     }
 
 }
