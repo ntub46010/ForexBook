@@ -17,4 +17,6 @@
     <string name="title_create_book">建立帳簿</string>
     <string name="desc_create_book">請輸入帳簿名稱，並選擇銀行及幣別。</string>
 
+    <string name="message_create_successful">建立成功</string>
+
 </resources>

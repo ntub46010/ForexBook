@@ -39,8 +39,8 @@ class BookListAdapter(private val context: Context,
         return bookView
     }
 
-    fun addItem(book: BookVO) {
-        books.add(book)
+    fun addItemToFirst(book: BookVO) {
+        books.add(0, book)
         notifyDataSetChanged()
     }
 

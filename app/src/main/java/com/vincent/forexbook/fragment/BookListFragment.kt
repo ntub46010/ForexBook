@@ -87,17 +87,20 @@ class BookListFragment : Fragment() {
             createdTime = Date())
 
         dialogCreateBook.dismiss()
+        // TODO: progress dialog show
         BookService.createBook(request, bookCreatedListener)
     }
 
     private val bookCreatedListener = object : GeneralCallback<BookVO> {
         override fun onFinish(data: BookVO?) {
-            Toast.makeText(context!!, "新增成功", Toast.LENGTH_SHORT).show()
-            (listBook.adapter as BookListAdapter).addItem(data!!)
+            Toast.makeText(context!!, context!!.getString(R.string.message_create_successful), Toast.LENGTH_SHORT).show()
+            // TODO: progress dialog dismiss
+            (listBook.adapter as BookListAdapter).addItemToFirst(data!!)
         }
 
         override fun onException(e: Exception) {
             Toast.makeText(context!!, e.message, Toast.LENGTH_SHORT).show()
+            // TODO: progress dialog dismiss
         }
     }
 
@@ -109,18 +112,40 @@ class BookListFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        btnCreateBook.setOnClickListener {
-            dialogCreateBook.show()
+        initCreateDialog()
+        btnCreateBook.setOnClickListener { dialogCreateBook.show() }
+        listBook.onItemClickListener = bookItemListener
+
+        // TODO: progress bar visible
+        loadBooks()
+    }
+
+    private fun loadBooks() {
+        val callback = object : GeneralCallback<List<BookVO>> {
+            override fun onFinish(data: List<BookVO>?) {
+                activity?.runOnUiThread {
+                    displayBooks(data ?: emptyList())
+                }
+            }
+
+            override fun onException(e: Exception) {
+                activity?.runOnUiThread {
+                    //prgBar.visibility = View.INVISIBLE
+                    Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
+                }
+            }
         }
 
-        val books = getDefaultBookMockData()
+        BookService.loadBooks(callback)
+    }
+
+    private fun displayBooks(books: List<BookVO>) {
+        // TODO: progress bar invisible
         val adapter = listBook.adapter
+
         if (adapter == null) {
             listBook.adapter = BookListAdapter(context!!, books.toMutableList())
         }
-        listBook.onItemClickListener = bookItemListener
-
-        initCreateDialog()
     }
 
     private fun initCreateDialog() {
@@ -146,14 +171,4 @@ class BookListFragment : Fragment() {
         dialogCreateBook.setOnShowListener(dialogShowListener)
     }
 
-    private fun getDefaultBookMockData(): List<BookVO> {
-        val books = mutableListOf<BookVO>()
-
-        for (type in CurrencyType.values()) {
-            books.add(BookVO(type.iconResource.toString(), type.getTitle(),
-                Bank.FUBON, type, Date()))
-        }
-
-        return books
-    }
 }
