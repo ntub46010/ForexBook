@@ -45,4 +45,6 @@ object AuthenticationService {
                 Toast.makeText(context, "已登出", Toast.LENGTH_SHORT).show()
             }
     }
+
+    fun getUserId() = currentLoginUser?.uid
 }

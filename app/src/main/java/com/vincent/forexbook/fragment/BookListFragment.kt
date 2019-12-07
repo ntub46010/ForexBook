@@ -1,5 +1,6 @@
 package com.vincent.forexbook.fragment
 
+import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,11 +10,14 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import com.google.android.material.textfield.TextInputLayout
+import com.vincent.forexbook.GeneralCallback
 import com.vincent.forexbook.R
 import com.vincent.forexbook.adapter.BookListAdapter
 import com.vincent.forexbook.entity.Bank
-import com.vincent.forexbook.entity.Book
+import com.vincent.forexbook.entity.BookVO
+import com.vincent.forexbook.entity.BookPO
 import com.vincent.forexbook.entity.CurrencyType
+import com.vincent.forexbook.service.BookService
 import kotlinx.android.synthetic.main.fragment_book_list.*
 import java.util.*
 
@@ -25,9 +29,10 @@ class BookListFragment : Fragment() {
     private lateinit var spinnerCurrencyType: Spinner
 
     private lateinit var dialogCreateBook: AlertDialog
+    private lateinit var dialogWaiting: Dialog
 
     private val bookItemListener = AdapterView.OnItemClickListener { parent, view, position, id ->
-        val book = listBook.adapter.getItem(position) as Book
+        val book = listBook.adapter.getItem(position) as BookVO
         Toast.makeText(context!!, book.id, Toast.LENGTH_SHORT).show()
     }
 
@@ -38,7 +43,7 @@ class BookListFragment : Fragment() {
 
         // button is available after dialog shows
         dialogCreateBook.getButton(DialogInterface.BUTTON_POSITIVE)
-            .setOnClickListener(dialogCreateBookListener)
+            .setOnClickListener(dialogCreateClickListener)
     }
 
     private val spinnerBankListener = object : AdapterView.OnItemSelectedListener {
@@ -66,7 +71,7 @@ class BookListFragment : Fragment() {
         }
     }
 
-    private val dialogCreateBookListener = View.OnClickListener {
+    private val dialogCreateClickListener = View.OnClickListener {
         val name = editBookName.text
         if (name == null || name.isEmpty()) {
             tilBookName.error = context!!.getString(R.string.mandatory_field)
@@ -77,16 +82,28 @@ class BookListFragment : Fragment() {
         val strCurrencyType = spinnerCurrencyType.selectedItem.toString()
         val currencyCode = strCurrencyType.split(" ")[1]
 
-        val book = Book(
-            null,
+        val request = BookPO(
             name.toString(),
             Bank.findByChineseName(strBank)!!,
             CurrencyType.valueOf(currencyCode),
-            Date())
+            createdTime = Date())
 
         dialogCreateBook.dismiss()
-        Toast.makeText(context!!, book.toString(), Toast.LENGTH_SHORT).show()
-        (listBook.adapter as BookListAdapter).addItem(book)
+        dialogWaiting.show()
+        BookService.createBook(request, bookCreatedListener)
+    }
+
+    private val bookCreatedListener = object : GeneralCallback<BookVO> {
+        override fun onFinish(data: BookVO?) {
+            Toast.makeText(context!!, context!!.getString(R.string.message_create_successful), Toast.LENGTH_SHORT).show()
+            dialogWaiting.dismiss()
+            (listBook.adapter as BookListAdapter).addItemToFirst(data!!)
+        }
+
+        override fun onException(e: Exception) {
+            Toast.makeText(context!!, e.message, Toast.LENGTH_SHORT).show()
+            dialogWaiting.dismiss()
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -97,18 +114,41 @@ class BookListFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        btnCreateBook.setOnClickListener {
-            dialogCreateBook.show()
+        initCreateDialog()
+        initWaitingDialog()
+        btnCreateBook.setOnClickListener { dialogCreateBook.show() }
+        listBook.onItemClickListener = bookItemListener
+
+        prgBar.visibility = View.VISIBLE
+        loadBooks()
+    }
+
+    private fun loadBooks() {
+        val callback = object : GeneralCallback<List<BookVO>> {
+            override fun onFinish(data: List<BookVO>?) {
+                activity?.runOnUiThread {
+                    displayBooks(data ?: emptyList())
+                }
+            }
+
+            override fun onException(e: Exception) {
+                activity?.runOnUiThread {
+                    prgBar.visibility = View.INVISIBLE
+                    Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
+                }
+            }
         }
 
-        val books = getDefaultBookMockData()
+        BookService.loadBooks(callback)
+    }
+
+    private fun displayBooks(books: List<BookVO>) {
+        prgBar.visibility = View.INVISIBLE
         val adapter = listBook.adapter
+
         if (adapter == null) {
             listBook.adapter = BookListAdapter(context!!, books.toMutableList())
         }
-        listBook.onItemClickListener = bookItemListener
-
-        initCreateDialog()
     }
 
     private fun initCreateDialog() {
@@ -134,14 +174,10 @@ class BookListFragment : Fragment() {
         dialogCreateBook.setOnShowListener(dialogShowListener)
     }
 
-    private fun getDefaultBookMockData(): List<Book> {
-        val books = mutableListOf<Book>()
-
-        for (type in CurrencyType.values()) {
-            books.add(Book(type.iconResource.toString(), type.getTitle(),
-                Bank.FUBON, type, Date()))
-        }
-
-        return books
+    private fun initWaitingDialog() {
+        dialogWaiting = Dialog(context!!)
+        dialogWaiting.setContentView(R.layout.dialog_waiting)
+        dialogWaiting.setCancelable(false)
     }
+
 }

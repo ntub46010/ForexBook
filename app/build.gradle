@@ -33,14 +33,14 @@ dependencies {
     implementation 'com.google.android.material:material:1.0.0'
 
     implementation 'com.google.firebase:firebase-core:17.2.1'
-    implementation 'com.google.firebase:firebase-auth:19.1.0'
+    implementation 'com.google.firebase:firebase-auth:19.2.0'
     implementation 'com.firebaseui:firebase-ui-auth:4.3.1'
+    implementation 'com.google.firebase:firebase-firestore-ktx:21.3.0'
     implementation 'com.google.firebase:firebase-analytics:17.2.1'
     implementation 'com.facebook.android:facebook-android-sdk:5.0.0'
 
     implementation 'com.squareup.okhttp3:okhttp:4.2.2'
     implementation 'org.jsoup:jsoup:1.12.1'
-    implementation 'commons-net:commons-net:3.6'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'

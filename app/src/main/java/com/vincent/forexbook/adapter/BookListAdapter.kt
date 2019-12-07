@@ -8,10 +8,10 @@ import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import com.vincent.forexbook.R
-import com.vincent.forexbook.entity.Book
+import com.vincent.forexbook.entity.BookVO
 
 class BookListAdapter(private val context: Context,
-                      private val books: MutableList<Book>) : BaseAdapter() {
+                      private val books: MutableList<BookVO>) : BaseAdapter() {
 
     override fun getItem(position: Int): Any {
         return books[position]
@@ -39,8 +39,8 @@ class BookListAdapter(private val context: Context,
         return bookView
     }
 
-    fun addItem(book: Book) {
-        books.add(book)
+    fun addItemToFirst(book: BookVO) {
+        books.add(0, book)
         notifyDataSetChanged()
     }
 
