@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.viewpager.widget.ViewPager
 import com.vincent.forexbook.Constants
 import com.vincent.forexbook.R
 import com.vincent.forexbook.adapter.EntryPagerAdapter
@@ -16,6 +17,22 @@ class BookHomeActivity : AppCompatActivity() {
     private lateinit var bookId: String
     private lateinit var bookName: String
 
+    private var selectedPagePosition = 0
+
+    private val entryPageOnChangeListener = object : ViewPager.OnPageChangeListener {
+        override fun onPageScrollStateChanged(state: Int) {
+
+        }
+
+        override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+
+        }
+
+        override fun onPageSelected(position: Int) {
+            selectedPagePosition = position
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_book_home)
@@ -26,6 +43,10 @@ class BookHomeActivity : AppCompatActivity() {
 
         initToolbar()
         initEntryViewPager()
+
+        btnCreateEntry.setOnClickListener {
+            Toast.makeText(this, "建立帳目 ${selectedPagePosition}", Toast.LENGTH_SHORT).show()
+        }
 
         Toast.makeText(this, bookId, Toast.LENGTH_SHORT).show()
     }
@@ -51,6 +72,7 @@ class BookHomeActivity : AppCompatActivity() {
         pagerEntry.adapter = adapter
         pagerEntry.offscreenPageLimit = adapter.count - 1
         pagerEntry.currentItem = 0
+        pagerEntry.addOnPageChangeListener(entryPageOnChangeListener)
 
         tab.setupWithViewPager(pagerEntry)
     }
