@@ -5,16 +5,16 @@
     <item
         android:id="@+id/navExchangeRate"
         android:icon="@drawable/icon_nav_exchange_rate"
-        android:title="@string/nav_exchange_rate"/>
+        android:title="@string/nav_title_exchange_rate"/>
 
     <item
         android:id="@+id/navBook"
         android:icon="@drawable/icon_nav_book"
-        android:title="@string/nav_book"/>
+        android:title="@string/nav_title_book"/>
 
     <item
         android:id="@+id/navReport"
         android:icon="@drawable/icon_nav_report"
-        android:title="@string/nav_report"/>
+        android:title="@string/nav_title_report"/>
 
 </menu>

@@ -2,6 +2,7 @@ package com.vincent.forexbook.fragment
 
 import android.app.Dialog
 import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,8 +11,10 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import com.google.android.material.textfield.TextInputLayout
+import com.vincent.forexbook.Constants
 import com.vincent.forexbook.GeneralCallback
 import com.vincent.forexbook.R
+import com.vincent.forexbook.activity.BookHomeActivity
 import com.vincent.forexbook.adapter.BookListAdapter
 import com.vincent.forexbook.entity.Bank
 import com.vincent.forexbook.entity.BookVO
@@ -31,9 +34,13 @@ class BookListFragment : Fragment() {
     private lateinit var dialogCreateBook: AlertDialog
     private lateinit var dialogWaiting: Dialog
 
-    private val bookItemListener = AdapterView.OnItemClickListener { parent, view, position, id ->
+    private val bookItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
         val book = listBook.adapter.getItem(position) as BookVO
-        Toast.makeText(context!!, book.id, Toast.LENGTH_SHORT).show()
+
+        val intent = Intent(context!!, BookHomeActivity::class.java)
+        intent.putExtra(Constants.FIELD_ID, book.id)
+        intent.putExtra(Constants.FIELD_NAME, book.name)
+        startActivity(intent)
     }
 
     private val dialogShowListener = DialogInterface.OnShowListener {
@@ -117,7 +124,7 @@ class BookListFragment : Fragment() {
         initCreateDialog()
         initWaitingDialog()
         btnCreateBook.setOnClickListener { dialogCreateBook.show() }
-        listBook.onItemClickListener = bookItemListener
+        listBook.onItemClickListener = bookItemClickListener
 
         prgBar.visibility = View.VISIBLE
         loadBooks()

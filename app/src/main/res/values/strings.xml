@@ -3,15 +3,20 @@
     <string name="facebook_application_id">776315792727800</string>
     <string name="facebook_app_id">776315792727800</string>
 
-    <string name="nav_exchange_rate">匯率表</string>
-    <string name="nav_book">帳簿</string>
-    <string name="nav_report">報表</string>
+    <string name="nav_title_exchange_rate">匯率表</string>
+    <string name="nav_title_book">帳簿</string>
+    <string name="nav_title_report">報表</string>
+    <string name="nav_title_credit">轉入</string>
+    <string name="nav_title_debit">轉出</string>
+    <string name="nav_title_balance">結餘</string>
 
     <string name="default_bank">預設瀏覽銀行</string>
     <string name="book_name">帳簿名稱</string>
 
     <string name="ok">確定</string>
     <string name="cancel">取消</string>
+    <string name="edit">編輯</string>
+    <string name="delete">刪除</string>
     <string name="mandatory_field">必填欄位</string>
 
     <string name="title_create_book">建立帳簿</string>
