@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:text="@string/foreign_balance"
         android:textColor="@color/black3"
-        android:textSize="16sp"
+        android:textSize="@dimen/font_size_2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="@+id/txtForeignCurrency" />
@@ -22,20 +22,20 @@
         android:id="@+id/txtBalance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="5dp"
+        android:layout_marginEnd="@dimen/widget_small_spacing"
         android:text="3,028.51"
-        android:textSize="18sp"
+        android:textSize="@dimen/font_size_1"
         android:textColor="@color/black3"
         app:layout_constraintEnd_toStartOf="@id/txtForeignCurrency"
         app:layout_constraintTop_toTopOf="parent"/>
 
     <TextView
         android:id="@+id/txtForeignCurrency"
-        android:layout_width="40dp"
+        android:layout_width="@dimen/currency_type_text_width"
         android:layout_height="wrap_content"
         android:gravity="end"
         android:text="USD"
-        android:textSize="18sp"
+        android:textSize="@dimen/font_size_1"
         android:textColor="@color/black3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
@@ -47,7 +47,7 @@
         android:layout_marginTop="@dimen/widget_default_spacing"
         android:text="@string/twd_present_value"
         android:textColor="@color/black3"
-        android:textSize="16sp"
+        android:textSize="@dimen/font_size_2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/txtLabelForeignBalance"/>
 
@@ -55,21 +55,21 @@
         android:id="@+id/txtPresentValue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="5dp"
+        android:layout_marginEnd="@dimen/widget_small_spacing"
         android:text="90,731"
-        android:textSize="18sp"
+        android:textSize="@dimen/font_size_1"
         android:textColor="@color/black3"
         app:layout_constraintEnd_toStartOf="@id/txtTaiwanCurrency"
         app:layout_constraintBottom_toBottomOf="@id/txtLabelPresentValue"/>
 
     <TextView
         android:id="@+id/txtTaiwanCurrency"
-        android:layout_width="40dp"
+        android:layout_width="@dimen/currency_type_text_width"
         android:layout_height="wrap_content"
         android:gravity="end"
         android:text="@string/twd"
         android:textColor="@color/black3"
-        android:textSize="18sp"
+        android:textSize="@dimen/font_size_1"
         app:layout_constraintBottom_toBottomOf="@+id/txtLabelPresentValue"
         app:layout_constraintEnd_toEndOf="parent"/>
 
@@ -80,7 +80,7 @@
         android:layout_marginTop="@dimen/widget_default_spacing"
         android:text="@string/balance_roi"
         android:textColor="@color/black3"
-        android:textSize="16sp"
+        android:textSize="@dimen/font_size_2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/txtLabelPresentValue"/>
 
@@ -88,9 +88,9 @@
         android:id="@+id/txtROI"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="5dp"
+        android:layout_marginEnd="@dimen/widget_small_spacing"
         android:text="-1,332"
-        android:textSize="18sp"
+        android:textSize="@dimen/font_size_1"
         android:textColor="@color/black3"
         app:layout_constraintEnd_toStartOf="@id/txtROIRate"
         app:layout_constraintBottom_toBottomOf="@id/txtLabelROI"/>
@@ -100,7 +100,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="(-1.47%)"
-        android:textSize="14sp"
+        android:textSize="@dimen/font_size_3"
         android:textColor="@color/black3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="@id/txtLabelROI"/>

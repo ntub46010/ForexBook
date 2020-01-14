@@ -2,9 +2,14 @@
 <resources>
     <dimen name="parent_default_padding">10dp</dimen>
     <dimen name="widget_default_spacing">8dp</dimen>
+    <dimen name="widget_small_spacing">5dp</dimen>
     <dimen name="card_corner_radius">8dp</dimen>
     <dimen name="spinner_default_height">32dp</dimen>
     <dimen name="spinner_default_width">175dp</dimen>
     <dimen name="tab_bar_elevation">4dp</dimen>
     <dimen name="float_button_margin">16dp</dimen>
+    <dimen name="currency_type_text_width">40dp</dimen>
+    <dimen name="font_size_1">18sp</dimen>
+    <dimen name="font_size_2">16sp</dimen>
+    <dimen name="font_size_3">14sp</dimen>
 </resources>

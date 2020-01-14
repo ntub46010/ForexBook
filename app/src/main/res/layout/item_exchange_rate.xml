@@ -30,7 +30,7 @@
             android:layout_marginStart="15dp"
             android:includeFontPadding="false"
             android:textColor="@color/black3"
-            android:textSize="16sp"
+            android:textSize="@dimen/font_size_2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/imgIcon"
             app:layout_constraintTop_toTopOf="@+id/imgIcon" />
@@ -42,7 +42,7 @@
             android:layout_marginStart="15dp"
             android:includeFontPadding="false"
             android:textColor="@color/amount_credit"
-            android:textSize="16sp"
+            android:textSize="@dimen/font_size_2"
             app:layout_constraintBottom_toBottomOf="@+id/imgIcon"
             app:layout_constraintStart_toEndOf="@+id/imgIcon" />
 
@@ -58,7 +58,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/amount_debit"
-            android:textSize="16sp"
+            android:textSize="@dimen/font_size_2"
             app:layout_constraintBottom_toBottomOf="@+id/txtCredit"
             app:layout_constraintStart_toStartOf="@+id/guideline" />
 

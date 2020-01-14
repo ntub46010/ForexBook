@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:text="2020/01/12"
         android:textColor="@color/black3"
-        android:textSize="14sp"
+        android:textSize="@dimen/font_size_3"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -22,7 +22,7 @@
         android:layout_marginTop="@dimen/widget_default_spacing"
         android:text="轉入"
         android:textColor="@color/black3"
-        android:textSize="16sp"
+        android:textSize="@dimen/font_size_2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtDate" />
 
@@ -35,12 +35,12 @@
 
     <TextView
         android:id="@+id/txtForeignCurrency"
-        android:layout_width="40dp"
+        android:layout_width="@dimen/currency_type_text_width"
         android:layout_height="wrap_content"
         android:gravity="end"
         android:text="USD"
         android:textColor="@color/black3"
-        android:textSize="16sp"
+        android:textSize="@dimen/font_size_2"
         app:layout_constraintBottom_toBottomOf="@id/txtEntryType"
         app:layout_constraintEnd_toStartOf="@id/guideline" />
 
@@ -51,19 +51,19 @@
         android:gravity="end"
         android:text="3,000"
         android:textColor="@color/black3"
-        android:textSize="16sp"
+        android:textSize="@dimen/font_size_2"
         app:layout_constraintStart_toEndOf="@id/txtEntryType"
         app:layout_constraintEnd_toStartOf="@id/txtForeignCurrency"
         app:layout_constraintBottom_toBottomOf="@id/txtEntryType"/>
 
     <TextView
         android:id="@+id/txtTaiwanCurrency"
-        android:layout_width="40dp"
+        android:layout_width="@dimen/currency_type_text_width"
         android:layout_height="wrap_content"
         android:gravity="end"
         android:text="@string/twd"
         android:textColor="@color/black3"
-        android:textSize="16sp"
+        android:textSize="@dimen/font_size_2"
         app:layout_constraintBottom_toBottomOf="@id/txtEntryType"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -74,7 +74,7 @@
         android:gravity="end"
         android:text="92,531"
         android:textColor="@color/black3"
-        android:textSize="16sp"
+        android:textSize="@dimen/font_size_2"
         app:layout_constraintStart_toEndOf="@id/guideline"
         app:layout_constraintEnd_toStartOf="@id/txtTaiwanCurrency"
         app:layout_constraintBottom_toBottomOf="@id/txtEntryType"/>
