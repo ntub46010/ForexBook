@@ -31,7 +31,7 @@
 
     <TextView
         android:id="@+id/txtForeignCurrency"
-        android:layout_width="45dp"
+        android:layout_width="40dp"
         android:layout_height="wrap_content"
         android:gravity="end"
         android:text="USD"
@@ -64,7 +64,7 @@
 
     <TextView
         android:id="@+id/txtTaiwanCurrency"
-        android:layout_width="45dp"
+        android:layout_width="40dp"
         android:layout_height="wrap_content"
         android:gravity="end"
         android:text="@string/twd"

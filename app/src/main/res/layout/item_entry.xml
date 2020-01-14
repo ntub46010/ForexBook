@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/widget_default_spacing">
+
+    <TextView
+        android:id="@+id/txtDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="2020/01/12"
+        android:textColor="@color/black3"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/txtEntryType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/widget_default_spacing"
+        android:text="轉入"
+        android:textColor="@color/black3"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtDate" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.54" />
+
+    <TextView
+        android:id="@+id/txtForeignCurrency"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:text="USD"
+        android:textColor="@color/black3"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@id/txtEntryType"
+        app:layout_constraintEnd_toStartOf="@id/guideline" />
+
+    <TextView
+        android:id="@+id/txtForeignAmt"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:text="3,000"
+        android:textColor="@color/black3"
+        android:textSize="16sp"
+        app:layout_constraintStart_toEndOf="@id/txtEntryType"
+        app:layout_constraintEnd_toStartOf="@id/txtForeignCurrency"
+        app:layout_constraintBottom_toBottomOf="@id/txtEntryType"/>
+
+    <TextView
+        android:id="@+id/txtTaiwanCurrency"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:text="@string/twd"
+        android:textColor="@color/black3"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@id/txtEntryType"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/txtTaiwanAmt"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:text="92,531"
+        android:textColor="@color/black3"
+        android:textSize="16sp"
+        app:layout_constraintStart_toEndOf="@id/guideline"
+        app:layout_constraintEnd_toStartOf="@id/txtTaiwanCurrency"
+        app:layout_constraintBottom_toBottomOf="@id/txtEntryType"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
