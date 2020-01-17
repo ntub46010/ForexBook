@@ -4,15 +4,44 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.AdapterView
 import android.widget.Toast
 import com.vincent.forexbook.Constants
+import com.vincent.forexbook.GeneralCallback
 import com.vincent.forexbook.R
+import com.vincent.forexbook.adapter.EntryListAdapter
+import com.vincent.forexbook.entity.EntryVO
+import com.vincent.forexbook.service.EntryService
 import kotlinx.android.synthetic.main.activity_book_home.*
 
 class BookHomeActivity : AppCompatActivity() {
 
     private lateinit var bookId: String
-    private lateinit var bookName: String
+
+    private val entriesLoadedCallback = object : GeneralCallback<List<EntryVO>> {
+        override fun onFinish(data: List<EntryVO>?) {
+            runOnUiThread {
+                displayEntries(data ?: emptyList())
+            }
+        }
+
+        override fun onException(e: Exception) {
+            runOnUiThread {
+                prgBar.visibility = View.INVISIBLE
+                Toast.makeText(this@BookHomeActivity, e.message, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private val entryItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
+        val entry = listEntry.adapter.getItem(position) as EntryVO
+        Toast.makeText(this, entry.id, Toast.LENGTH_SHORT).show()
+    }
+
+    private val createEntryButtonClickListener = View.OnClickListener {
+        Toast.makeText(this, "建立帳目 $bookId", Toast.LENGTH_SHORT).show()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,25 +49,32 @@ class BookHomeActivity : AppCompatActivity() {
 
         val bundle = intent.extras!!
         bookId = bundle.getString(Constants.FIELD_ID)!!
-        bookName = bundle.getString(Constants.FIELD_NAME)!!
+        val bookName = bundle.getString(Constants.FIELD_NAME) ?: ""
 
-        initToolbar()
+        initToolbar(bookName)
+        listEntry.onItemClickListener = entryItemClickListener
+        btnCreateEntry.setOnClickListener(createEntryButtonClickListener)
 
-        btnCreateEntry.setOnClickListener {
-            Toast.makeText(this, "建立帳目", Toast.LENGTH_SHORT).show()
-        }
-
-        Toast.makeText(this, bookId, Toast.LENGTH_SHORT).show()
+        EntryService.loadEntries(bookId, entriesLoadedCallback)
     }
 
-    private fun initToolbar() {
-        toolbar.title = bookName
+    private fun initToolbar(title: String) {
+        toolbar.title = title
         setSupportActionBar(toolbar)
 
-        // listener should be set after setting to activity
+        // listener should be set after setting toolbar to activity
         toolbar.setNavigationOnClickListener { finish() }
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    }
+
+    private fun displayEntries(entries: List<EntryVO>) {
+        prgBar.visibility = View.INVISIBLE
+        val adapter = listEntry.adapter
+
+        if (adapter == null) {
+            listEntry.adapter = EntryListAdapter(this, entries.toMutableList())
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

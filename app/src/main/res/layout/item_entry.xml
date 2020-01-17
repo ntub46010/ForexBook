@@ -34,7 +34,7 @@
         app:layout_constraintGuide_percent="0.54" />
 
     <TextView
-        android:id="@+id/txtForeignCurrency"
+        android:id="@+id/txtForeignType"
         android:layout_width="@dimen/currency_type_text_width"
         android:layout_height="wrap_content"
         android:gravity="end"
@@ -53,11 +53,11 @@
         android:textColor="@color/black3"
         android:textSize="@dimen/font_size_2"
         app:layout_constraintStart_toEndOf="@id/txtEntryType"
-        app:layout_constraintEnd_toStartOf="@id/txtForeignCurrency"
+        app:layout_constraintEnd_toStartOf="@id/txtForeignType"
         app:layout_constraintBottom_toBottomOf="@id/txtEntryType"/>
 
     <TextView
-        android:id="@+id/txtTaiwanCurrency"
+        android:id="@+id/txtTaiwanType"
         android:layout_width="@dimen/currency_type_text_width"
         android:layout_height="wrap_content"
         android:gravity="end"
@@ -76,7 +76,7 @@
         android:textColor="@color/black3"
         android:textSize="@dimen/font_size_2"
         app:layout_constraintStart_toEndOf="@id/guideline"
-        app:layout_constraintEnd_toStartOf="@id/txtTaiwanCurrency"
+        app:layout_constraintEnd_toStartOf="@id/txtTaiwanType"
         app:layout_constraintBottom_toBottomOf="@id/txtEntryType"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
