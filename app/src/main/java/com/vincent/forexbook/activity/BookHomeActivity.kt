@@ -11,18 +11,26 @@ import com.vincent.forexbook.Constants
 import com.vincent.forexbook.GeneralCallback
 import com.vincent.forexbook.R
 import com.vincent.forexbook.adapter.EntryListAdapter
+import com.vincent.forexbook.entity.BookVO
 import com.vincent.forexbook.entity.EntryVO
+import com.vincent.forexbook.entity.ExchangeRate
 import com.vincent.forexbook.service.EntryService
+import com.vincent.forexbook.service.ExchangeRateService
+import com.vincent.forexbook.util.FormatUtils
 import kotlinx.android.synthetic.main.activity_book_home.*
+import kotlinx.android.synthetic.main.content_book_home_dashboard.*
+import java.math.BigDecimal
 
 class BookHomeActivity : AppCompatActivity() {
 
-    private lateinit var bookId: String
+    private lateinit var book: BookVO
 
     private val entriesLoadedCallback = object : GeneralCallback<List<EntryVO>> {
         override fun onFinish(data: List<EntryVO>?) {
             runOnUiThread {
-                displayEntries(data ?: emptyList())
+                val entries = data ?: emptyList()
+                displayEntries(entries)
+                displayDashboard(entries)
             }
         }
 
@@ -34,13 +42,40 @@ class BookHomeActivity : AppCompatActivity() {
         }
     }
 
+    private val exchangeRateLoadedCallback = object  : GeneralCallback<ExchangeRate> {
+        override fun onFinish(data: ExchangeRate?) {
+            if (data == null) {
+                return
+            }
+
+            val taiwanPresentValue = BigDecimal(book.foreignBalance)
+                .multiply(BigDecimal(data.debit))
+                .divide(BigDecimal(1), 0, BigDecimal.ROUND_HALF_DOWN)
+                .toInt()
+            val roi = taiwanPresentValue - book.taiwanBalance
+            val roiRate = BigDecimal(roi)
+                .divide(BigDecimal(taiwanPresentValue), 4, BigDecimal.ROUND_HALF_DOWN)
+                .toDouble()
+
+            txtForeignBalance.text = FormatUtils.formatMoney(book.foreignBalance)
+            txtForeignCurrency.text = book.currencyType.name
+            txtPresentValue.text = FormatUtils.formatMoney(taiwanPresentValue)
+            txtROI.text = FormatUtils.formatMoney(roi)
+            txtROIRate.text = "(${roiRate * 100}%)"
+        }
+
+        override fun onException(e: Exception) {
+            Toast.makeText(this@BookHomeActivity, e.message, Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private val entryItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
         val entry = listEntry.adapter.getItem(position) as EntryVO
         Toast.makeText(this, entry.id, Toast.LENGTH_SHORT).show()
     }
 
     private val createEntryButtonClickListener = View.OnClickListener {
-        Toast.makeText(this, "建立帳目 $bookId", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "建立帳目 ${book.id}", Toast.LENGTH_SHORT).show()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,14 +83,13 @@ class BookHomeActivity : AppCompatActivity() {
         setContentView(R.layout.activity_book_home)
 
         val bundle = intent.extras!!
-        bookId = bundle.getString(Constants.FIELD_ID)!!
-        val bookName = bundle.getString(Constants.FIELD_NAME) ?: ""
+        book = bundle.getSerializable(Constants.FIELD_BOOK) as BookVO
 
-        initToolbar(bookName)
+        initToolbar(book.name)
         listEntry.onItemClickListener = entryItemClickListener
         btnCreateEntry.setOnClickListener(createEntryButtonClickListener)
 
-        EntryService.loadEntries(bookId, entriesLoadedCallback)
+        EntryService.loadEntries(book.id, entriesLoadedCallback)
     }
 
     private fun initToolbar(title: String) {
@@ -75,6 +109,18 @@ class BookHomeActivity : AppCompatActivity() {
         if (adapter == null) {
             listEntry.adapter = EntryListAdapter(this, entries.toMutableList())
         }
+    }
+
+    private fun displayDashboard(entries: List<EntryVO>) {
+        book.foreignBalance = entries.asSequence()
+            .map { it.fcyAmt }
+            .sum()
+
+        book.taiwanBalance = entries.asSequence()
+            .map { it.twdAmt }
+            .sum()
+
+        ExchangeRateService.loadExchangeRate(book.bank, book.currencyType, exchangeRateLoadedCallback)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

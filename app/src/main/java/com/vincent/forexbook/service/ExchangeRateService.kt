@@ -18,10 +18,10 @@ object ExchangeRateService {
     private val exchangeRateCache = EnumMap<Bank, CacheData<Map<CurrencyType, ExchangeRate>>>(Bank::class.java)
     private const val updateInterval = 3
 
-    fun loadExchangeRate(bank: Bank, uiCallback: GeneralCallback<List<ExchangeRate>>) {
+    fun loadExchangeRates(bank: Bank, clientCallback: GeneralCallback<List<ExchangeRate>>) {
         val cacheData = getCacheData(bank)
         if (cacheData != null) {
-            uiCallback.onFinish(cacheData.values.toList())
+            clientCallback.onFinish(cacheData.values.toList())
             return
         }
 
@@ -44,15 +44,33 @@ object ExchangeRateService {
                     .toMap()
 
                 saveCacheData(bank, CacheData(exchangeRateMap, cacheExpiredTime))
-                uiCallback.onFinish(exchangeRateList)
+                clientCallback.onFinish(exchangeRateList)
             }
 
             override fun onException(e: Exception) {
-                uiCallback.onException(e)
+                clientCallback.onException(e)
             }
         }
 
         NetworkClient.loadExchangeRate(bank.exchangeRateUrl, cacheMaxAgeTimeMill, networkCallback)
+    }
+
+    fun loadExchangeRate(bank: Bank, currencyType: CurrencyType,
+                         clientCallback: GeneralCallback<ExchangeRate>) {
+        val networkCallback = object : GeneralCallback<List<ExchangeRate>> {
+            override fun onFinish(data: List<ExchangeRate>?) {
+                val exchangeRate = data?.asSequence()
+                    ?.firstOrNull { it.currencyType === currencyType }
+
+                clientCallback.onFinish(exchangeRate)
+            }
+
+            override fun onException(e: Exception) {
+                clientCallback.onException(e)
+            }
+        }
+
+        loadExchangeRates(bank, networkCallback)
     }
 
     private fun calcRichartExchangeRate(exchangeRates: List<ExchangeRate>): List<ExchangeRate> {

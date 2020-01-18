@@ -12,6 +12,7 @@ object Constants {
     const val FIELD_CURRENCY_TYPE = "currencyType"
     const val FIELD_CREATOR = "creator"
     const val FIELD_CREATED_TIME = "createdTime"
+    const val FIELD_BOOK = "book"
 
     const val RICHART_DISCOUNT_USD = 0.03
     const val RICHART_DISCOUNT_JPY = 0.0008

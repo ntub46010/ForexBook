@@ -38,8 +38,7 @@ class BookListFragment : Fragment() {
         val book = listBook.adapter.getItem(position) as BookVO
 
         val intent = Intent(context!!, BookHomeActivity::class.java)
-        intent.putExtra(Constants.FIELD_ID, book.id)
-        intent.putExtra(Constants.FIELD_NAME, book.name)
+        intent.putExtra(Constants.FIELD_BOOK, book)
         startActivity(intent)
     }
 
