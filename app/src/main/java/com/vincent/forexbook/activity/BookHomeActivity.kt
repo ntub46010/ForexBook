@@ -52,7 +52,11 @@ class BookHomeActivity : AppCompatActivity() {
     private val exchangeRateLoadedCallback = object : GeneralCallback<ExchangeRate> {
         override fun onFinish(data: ExchangeRate?) {
             val exchangeRate = data ?: return
-            runOnUiThread { displayDashboard(exchangeRate) }
+            runOnUiThread {
+                displayDashboard(exchangeRate)
+                prgBar.visibility = View.INVISIBLE
+                listEntry.visibility = View.VISIBLE
+            }
         }
 
         override fun onException(e: Exception) {
@@ -80,8 +84,9 @@ class BookHomeActivity : AppCompatActivity() {
         listEntry.onItemClickListener = entryItemClickListener
         btnCreateEntry.setOnClickListener(createEntryButtonClickListener)
 
+        listEntry.visibility = View.INVISIBLE
         //EntryService.loadEntries(book.id, entriesLoadedCallback)
-        EntryService.loadEntries(book.id, book.currencyType, entriesLoadedCallback)
+        EntryService.loadMockEntries(book.currencyType, entriesLoadedCallback)
     }
 
     private fun initToolbar(title: String) {
@@ -95,7 +100,6 @@ class BookHomeActivity : AppCompatActivity() {
     }
 
     private fun displayEntries(entries: List<EntryVO>) {
-        prgBar.visibility = View.INVISIBLE
         val adapter = listEntry.adapter
 
         if (adapter == null) {
@@ -104,19 +108,19 @@ class BookHomeActivity : AppCompatActivity() {
     }
 
     private fun displayDashboard(exchangeRate: ExchangeRate) {
-        val taiwanPresentValue = BigDecimal(book.foreignBalance)
+        val twdSellValue = BigDecimal(book.foreignBalance)
             .multiply(BigDecimal(exchangeRate.debit))
             .divide(BigDecimal(1), 0, BigDecimal.ROUND_HALF_DOWN)
             .toInt()
 
-        val roi = taiwanPresentValue - book.taiwanBalance
+        val roi = twdSellValue - book.taiwanBalance
         val roiRate = BigDecimal(roi)
-            .divide(BigDecimal(taiwanPresentValue), 4, BigDecimal.ROUND_HALF_DOWN)
+            .divide(BigDecimal(twdSellValue), 4, BigDecimal.ROUND_HALF_DOWN)
             .toDouble()
 
         txtForeignBalance.text = FormatUtils.formatMoney(book.foreignBalance)
         txtForeignCurrency.text = book.currencyType.name
-        txtPresentValue.text = FormatUtils.formatMoney(taiwanPresentValue)
+        txtSellValue.text = FormatUtils.formatMoney(twdSellValue)
         txtROI.text = FormatUtils.formatMoney(roi)
         txtROIRate.text = StringBuilder("(${roiRate * 100}%)").toString()
     }

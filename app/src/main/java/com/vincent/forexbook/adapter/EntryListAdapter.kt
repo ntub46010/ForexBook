@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import com.vincent.forexbook.R
 import com.vincent.forexbook.entity.EntryType
 import com.vincent.forexbook.entity.EntryVO
@@ -32,12 +33,17 @@ class EntryListAdapter(private val context: Context,
         val entry = getItem(position)
 
         txtDate.text = FormatUtils.formatDate(entry.createdTime)
-        txtEntryType.text =
-            if (entry.entryType === EntryType.CREDIT) context.getString(R.string.credit)
-            else context.getString(R.string.debit)
         txtForeignAmt.text = FormatUtils.formatMoney(entry.fcyAmt)
         txtTaiwanAmt.text = FormatUtils.formatMoney(entry.twdAmt)
         txtCurrencyType.text = entry.currencyType.name
+
+        if (entry.entryType === EntryType.CREDIT) {
+            txtEntryType.text = context.getString(R.string.credit)
+            txtEntryType.setTextColor(ContextCompat.getColor(context, R.color.amount_credit))
+        } else {
+            txtEntryType.text = context.getString(R.string.debit)
+            txtEntryType.setTextColor(ContextCompat.getColor(context, R.color.amount_debit))
+        }
 
         return entryView
     }

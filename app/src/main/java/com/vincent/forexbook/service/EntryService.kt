@@ -9,11 +9,10 @@ import java.util.*
 object EntryService {
 
     fun loadEntries(bookId: String, uiCallback: GeneralCallback<List<EntryVO>>) {
-        val entries = getMockCHFEntries()
-        uiCallback.onFinish(entries)
+        uiCallback.onFinish(emptyList())
     }
 
-    fun loadEntries(bookId: String, currencyType: CurrencyType, uiCallback: GeneralCallback<List<EntryVO>>) {
+    fun loadMockEntries(currencyType: CurrencyType, uiCallback: GeneralCallback<List<EntryVO>>) {
         val entries =
             if (currencyType === CurrencyType.CHF) getMockCHFEntries()
             else getMockUSDEntries()
