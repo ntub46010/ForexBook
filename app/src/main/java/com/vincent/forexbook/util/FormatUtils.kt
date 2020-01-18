@@ -14,8 +14,8 @@ object FormatUtils {
 
     fun formatDate(date: Date?): String = dateFormat.format(date)
 
-    fun formatMoney(amount: Int): String = moneyFormat.format(amount)!!
+    fun formatMoney(amount: Int): String = moneyFormat.format(amount)
 
-    fun formatMoney(amount: Double): String = moneyFormat.format(amount)!!
+    fun formatMoney(amount: Double): String = moneyFormat.format(amount)
 
 }

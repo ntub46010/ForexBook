@@ -11,9 +11,7 @@ import com.vincent.forexbook.Constants
 import com.vincent.forexbook.GeneralCallback
 import com.vincent.forexbook.R
 import com.vincent.forexbook.adapter.EntryListAdapter
-import com.vincent.forexbook.entity.BookVO
-import com.vincent.forexbook.entity.EntryVO
-import com.vincent.forexbook.entity.ExchangeRate
+import com.vincent.forexbook.entity.*
 import com.vincent.forexbook.service.EntryService
 import com.vincent.forexbook.service.ExchangeRateService
 import com.vincent.forexbook.util.FormatUtils
@@ -29,8 +27,17 @@ class BookHomeActivity : AppCompatActivity() {
         override fun onFinish(data: List<EntryVO>?) {
             runOnUiThread {
                 val entries = data ?: emptyList()
+
+                book.foreignBalance = entries.asSequence()
+                    .map { it.fcyAmt }
+                    .sum()
+                book.taiwanBalance = entries.asSequence()
+                    .map { it.twdAmt }
+                    .sum()
+
                 displayEntries(entries)
-                displayDashboard(entries)
+                ExchangeRateService
+                    .loadExchangeRate(book.bank, book.currencyType, exchangeRateLoadedCallback)
             }
         }
 
@@ -42,26 +49,10 @@ class BookHomeActivity : AppCompatActivity() {
         }
     }
 
-    private val exchangeRateLoadedCallback = object  : GeneralCallback<ExchangeRate> {
+    private val exchangeRateLoadedCallback = object : GeneralCallback<ExchangeRate> {
         override fun onFinish(data: ExchangeRate?) {
-            if (data == null) {
-                return
-            }
-
-            val taiwanPresentValue = BigDecimal(book.foreignBalance)
-                .multiply(BigDecimal(data.debit))
-                .divide(BigDecimal(1), 0, BigDecimal.ROUND_HALF_DOWN)
-                .toInt()
-            val roi = taiwanPresentValue - book.taiwanBalance
-            val roiRate = BigDecimal(roi)
-                .divide(BigDecimal(taiwanPresentValue), 4, BigDecimal.ROUND_HALF_DOWN)
-                .toDouble()
-
-            txtForeignBalance.text = FormatUtils.formatMoney(book.foreignBalance)
-            txtForeignCurrency.text = book.currencyType.name
-            txtPresentValue.text = FormatUtils.formatMoney(taiwanPresentValue)
-            txtROI.text = FormatUtils.formatMoney(roi)
-            txtROIRate.text = "(${roiRate * 100}%)"
+            val exchangeRate = data ?: return
+            runOnUiThread { displayDashboard(exchangeRate) }
         }
 
         override fun onException(e: Exception) {
@@ -89,7 +80,8 @@ class BookHomeActivity : AppCompatActivity() {
         listEntry.onItemClickListener = entryItemClickListener
         btnCreateEntry.setOnClickListener(createEntryButtonClickListener)
 
-        EntryService.loadEntries(book.id, entriesLoadedCallback)
+        //EntryService.loadEntries(book.id, entriesLoadedCallback)
+        EntryService.loadEntries(book.id, book.currencyType, entriesLoadedCallback)
     }
 
     private fun initToolbar(title: String) {
@@ -111,16 +103,22 @@ class BookHomeActivity : AppCompatActivity() {
         }
     }
 
-    private fun displayDashboard(entries: List<EntryVO>) {
-        book.foreignBalance = entries.asSequence()
-            .map { it.fcyAmt }
-            .sum()
+    private fun displayDashboard(exchangeRate: ExchangeRate) {
+        val taiwanPresentValue = BigDecimal(book.foreignBalance)
+            .multiply(BigDecimal(exchangeRate.debit))
+            .divide(BigDecimal(1), 0, BigDecimal.ROUND_HALF_DOWN)
+            .toInt()
 
-        book.taiwanBalance = entries.asSequence()
-            .map { it.twdAmt }
-            .sum()
+        val roi = taiwanPresentValue - book.taiwanBalance
+        val roiRate = BigDecimal(roi)
+            .divide(BigDecimal(taiwanPresentValue), 4, BigDecimal.ROUND_HALF_DOWN)
+            .toDouble()
 
-        ExchangeRateService.loadExchangeRate(book.bank, book.currencyType, exchangeRateLoadedCallback)
+        txtForeignBalance.text = FormatUtils.formatMoney(book.foreignBalance)
+        txtForeignCurrency.text = book.currencyType.name
+        txtPresentValue.text = FormatUtils.formatMoney(taiwanPresentValue)
+        txtROI.text = FormatUtils.formatMoney(roi)
+        txtROIRate.text = StringBuilder("(${roiRate * 100}%)").toString()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
