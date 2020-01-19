@@ -20,6 +20,6 @@
         android:layout_marginStart="20dp"
         android:gravity="center_horizontal"
         android:text="@string/message_please_wait"
-        android:textSize="16sp"/>
+        android:textSize="@dimen/font_size_2"/>
 
 </RelativeLayout>

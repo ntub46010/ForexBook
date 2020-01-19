@@ -109,7 +109,7 @@ class ExchangeRateListFragment : Fragment() {
             }
         }
 
-        ExchangeRateService.loadExchangeRate(bank, callback)
+        ExchangeRateService.loadExchangeRates(bank, callback)
     }
 
     private fun displayExchangeRate(exchangeRates: List<ExchangeRate>) {

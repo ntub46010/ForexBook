@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/parent_default_padding"
+    android:background="#FFBF96">
+
+    <TextView
+        android:id="@+id/txtLabelForeignBalance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/foreign_balance"
+        android:textColor="@color/black3"
+        android:textSize="@dimen/font_size_2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/txtForeignCurrency" />
+
+    <TextView
+        android:id="@+id/txtForeignBalance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/widget_small_spacing"
+        android:textSize="@dimen/font_size_1"
+        android:textColor="@color/black3"
+        app:layout_constraintEnd_toStartOf="@id/txtForeignCurrency"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/txtForeignCurrency"
+        android:layout_width="@dimen/currency_type_text_width"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:textSize="@dimen/font_size_1"
+        android:textColor="@color/black3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/txtLabelSellValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/widget_default_spacing"
+        android:text="@string/sell_value"
+        android:textColor="@color/black3"
+        android:textSize="@dimen/font_size_2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/txtLabelForeignBalance"/>
+
+    <TextView
+        android:id="@+id/txtSellValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/widget_small_spacing"
+        android:textSize="@dimen/font_size_1"
+        android:textColor="@color/black3"
+        app:layout_constraintEnd_toStartOf="@id/txtTaiwanCurrency"
+        app:layout_constraintBottom_toBottomOf="@id/txtLabelSellValue"/>
+
+    <TextView
+        android:id="@+id/txtTaiwanCurrency"
+        android:layout_width="@dimen/currency_type_text_width"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:text="@string/twd"
+        android:textColor="@color/black3"
+        android:textSize="@dimen/font_size_1"
+        app:layout_constraintBottom_toBottomOf="@+id/txtLabelSellValue"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <TextView
+        android:id="@+id/txtLabelROI"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/widget_default_spacing"
+        android:text="@string/current_roi_value"
+        android:textColor="@color/black3"
+        android:textSize="@dimen/font_size_2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/txtLabelSellValue"/>
+
+    <TextView
+        android:id="@+id/txtROI"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/widget_small_spacing"
+        android:textSize="@dimen/font_size_1"
+        android:textColor="@color/black3"
+        app:layout_constraintEnd_toStartOf="@id/txtROIRate"
+        app:layout_constraintBottom_toBottomOf="@id/txtLabelROI"/>
+
+    <TextView
+        android:id="@+id/txtROIRate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/font_size_3"
+        android:textColor="@color/black3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/txtLabelROI"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

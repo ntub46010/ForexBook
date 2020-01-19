@@ -6,12 +6,15 @@
     <string name="nav_title_exchange_rate">匯率表</string>
     <string name="nav_title_book">帳簿</string>
     <string name="nav_title_report">報表</string>
-    <string name="nav_title_credit">轉入</string>
-    <string name="nav_title_debit">轉出</string>
-    <string name="nav_title_balance">結餘</string>
 
     <string name="default_bank">預設瀏覽銀行</string>
     <string name="book_name">帳簿名稱</string>
+    <string name="foreign_balance">餘額</string>
+    <string name="sell_value">賣出值</string>
+    <string name="current_roi_value">當前損益</string>
+    <string name="twd">TWD</string>
+    <string name="credit">轉入</string>
+    <string name="debit">轉出</string>
 
     <string name="ok">確定</string>
     <string name="cancel">取消</string>

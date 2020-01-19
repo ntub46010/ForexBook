@@ -4,33 +4,73 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.AdapterView
 import android.widget.Toast
-import androidx.viewpager.widget.ViewPager
 import com.vincent.forexbook.Constants
+import com.vincent.forexbook.GeneralCallback
 import com.vincent.forexbook.R
-import com.vincent.forexbook.adapter.EntryPagerAdapter
-import com.vincent.forexbook.fragment.EmptyFragment
+import com.vincent.forexbook.adapter.EntryListAdapter
+import com.vincent.forexbook.entity.*
+import com.vincent.forexbook.service.EntryService
+import com.vincent.forexbook.service.ExchangeRateService
+import com.vincent.forexbook.util.FormatUtils
 import kotlinx.android.synthetic.main.activity_book_home.*
+import kotlinx.android.synthetic.main.content_book_home_dashboard.*
+import java.math.BigDecimal
 
 class BookHomeActivity : AppCompatActivity() {
 
-    private lateinit var bookId: String
-    private lateinit var bookName: String
+    private lateinit var book: BookVO
 
-    private var selectedPagePosition = 0
+    private val entriesLoadedCallback = object : GeneralCallback<List<EntryVO>> {
+        override fun onFinish(data: List<EntryVO>?) {
+            runOnUiThread {
+                val entries = data ?: emptyList()
 
-    private val entryPageOnChangeListener = object : ViewPager.OnPageChangeListener {
-        override fun onPageScrollStateChanged(state: Int) {
+                book.foreignBalance = entries.asSequence()
+                    .map { it.fcyAmt }
+                    .sum()
+                book.taiwanBalance = entries.asSequence()
+                    .map { it.twdAmt }
+                    .sum()
 
+                displayEntries(entries)
+                ExchangeRateService
+                    .loadExchangeRate(book.bank, book.currencyType, exchangeRateLoadedCallback)
+            }
         }
 
-        override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+        override fun onException(e: Exception) {
+            runOnUiThread {
+                prgBar.visibility = View.INVISIBLE
+                Toast.makeText(this@BookHomeActivity, e.message, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
+    private val exchangeRateLoadedCallback = object : GeneralCallback<ExchangeRate> {
+        override fun onFinish(data: ExchangeRate?) {
+            val exchangeRate = data ?: return
+            runOnUiThread {
+                displayDashboard(exchangeRate)
+                prgBar.visibility = View.INVISIBLE
+                listEntry.visibility = View.VISIBLE
+            }
         }
 
-        override fun onPageSelected(position: Int) {
-            selectedPagePosition = position
+        override fun onException(e: Exception) {
+            Toast.makeText(this@BookHomeActivity, e.message, Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private val entryItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
+        val entry = listEntry.adapter.getItem(position) as EntryVO
+        Toast.makeText(this, entry.id, Toast.LENGTH_SHORT).show()
+    }
+
+    private val createEntryButtonClickListener = View.OnClickListener {
+        Toast.makeText(this, "建立帳目 ${book.id}", Toast.LENGTH_SHORT).show()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,43 +78,51 @@ class BookHomeActivity : AppCompatActivity() {
         setContentView(R.layout.activity_book_home)
 
         val bundle = intent.extras!!
-        bookId = bundle.getString(Constants.FIELD_ID)!!
-        bookName = bundle.getString(Constants.FIELD_NAME)!!
+        book = bundle.getSerializable(Constants.FIELD_BOOK) as BookVO
 
-        initToolbar()
-        initEntryViewPager()
+        initToolbar(book.name)
+        listEntry.onItemClickListener = entryItemClickListener
+        btnCreateEntry.setOnClickListener(createEntryButtonClickListener)
 
-        btnCreateEntry.setOnClickListener {
-            Toast.makeText(this, "建立帳目 ${selectedPagePosition}", Toast.LENGTH_SHORT).show()
-        }
-
-        Toast.makeText(this, bookId, Toast.LENGTH_SHORT).show()
+        listEntry.visibility = View.INVISIBLE
+        //EntryService.loadEntries(book.id, entriesLoadedCallback)
+        EntryService.loadMockEntries(book.currencyType, entriesLoadedCallback)
     }
 
-    private fun initToolbar() {
-        toolbar.title = bookName
+    private fun initToolbar(title: String) {
+        toolbar.title = title
         setSupportActionBar(toolbar)
 
-        // listener should be set after setting to activity
+        // listener should be set after setting toolbar to activity
         toolbar.setNavigationOnClickListener { finish() }
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
-    private fun initEntryViewPager() {
-        // TODO: maybe can change to use NavigationPage
-        val titlePageMap = mapOf(
-            getString(R.string.nav_title_credit) to EmptyFragment(),
-            getString(R.string.nav_title_debit) to EmptyFragment(),
-            getString(R.string.nav_title_balance) to EmptyFragment())
+    private fun displayEntries(entries: List<EntryVO>) {
+        val adapter = listEntry.adapter
 
-        val adapter = EntryPagerAdapter(titlePageMap, supportFragmentManager)
-        pagerEntry.adapter = adapter
-        pagerEntry.offscreenPageLimit = adapter.count - 1
-        pagerEntry.currentItem = 0
-        pagerEntry.addOnPageChangeListener(entryPageOnChangeListener)
+        if (adapter == null) {
+            listEntry.adapter = EntryListAdapter(this, entries.toMutableList())
+        }
+    }
 
-        tab.setupWithViewPager(pagerEntry)
+    private fun displayDashboard(exchangeRate: ExchangeRate) {
+        val twdSellValue = BigDecimal(book.foreignBalance)
+            .multiply(BigDecimal(exchangeRate.debit))
+            .divide(BigDecimal(1), 0, BigDecimal.ROUND_HALF_DOWN)
+            .toInt()
+
+        val roi = twdSellValue - book.taiwanBalance
+        val roiRate = BigDecimal(roi)
+            .divide(BigDecimal(twdSellValue), 4, BigDecimal.ROUND_HALF_DOWN)
+            .toDouble()
+
+        txtForeignBalance.text = FormatUtils.formatMoney(book.foreignBalance)
+        txtForeignCurrency.text = book.currencyType.name
+        txtSellValue.text = FormatUtils.formatMoney(twdSellValue)
+        txtROI.text = FormatUtils.formatMoney(roi)
+        txtROIRate.text = StringBuilder("(${roiRate * 100}%)").toString()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
