@@ -1,18 +1,44 @@
 package com.vincent.forexbook.activity
 
+import android.app.DatePickerDialog
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.RadioGroup
 import android.widget.Toast
 import com.vincent.forexbook.Constants
 import com.vincent.forexbook.R
+import com.vincent.forexbook.util.FormatUtils
 import kotlinx.android.synthetic.main.activity_entry_edit.*
+import java.util.*
 
 class EntryEditActivity : AppCompatActivity() {
 
     private lateinit var bookId: String
     private lateinit var action: String
+
+    private val editDateClickListener = View.OnClickListener {
+        val now = Calendar.getInstance()
+        DatePickerDialog(this, dateSelectedListener,
+            now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH))
+            .show()
+    }
+
+    private val dateSelectedListener = DatePickerDialog.OnDateSetListener { view, year, month, dayOfMonth ->
+        editDate.setText(FormatUtils.formatDate(year, month, dayOfMonth))
+    }
+
+    private val entryTypeCheckListener = RadioGroup.OnCheckedChangeListener { radioGroup, checkedId ->
+        when (checkedId) {
+            R.id.radioInterestCredit -> {
+                tilTwdAmt.visibility = View.GONE
+                editTwdAmt.text = null
+            }
+            else -> tilTwdAmt.visibility = View.VISIBLE
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,7 +47,10 @@ class EntryEditActivity : AppCompatActivity() {
         action = intent.getStringExtra(Constants.KEY_ACTION)
         bookId = intent.getStringExtra(Constants.KEY_ID)
         Toast.makeText(this, bookId, Toast.LENGTH_SHORT).show()
+
         initToolbar()
+        editDate.setOnClickListener(editDateClickListener)
+        radioGroupEntryType.setOnCheckedChangeListener(entryTypeCheckListener)
     }
 
     private fun initToolbar() {
