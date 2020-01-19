@@ -1,5 +1,6 @@
 package com.vincent.forexbook.activity
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
@@ -70,7 +71,10 @@ class BookHomeActivity : AppCompatActivity() {
     }
 
     private val createEntryButtonClickListener = View.OnClickListener {
-        Toast.makeText(this, "建立帳目 ${book.id}", Toast.LENGTH_SHORT).show()
+        val intent = Intent(this, EntryEditActivity::class.java)
+        intent.putExtra(Constants.KEY_ID, book.id)
+        intent.putExtra(Constants.KEY_ACTION, Constants.ACTION_CREATE)
+        startActivity(intent)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
