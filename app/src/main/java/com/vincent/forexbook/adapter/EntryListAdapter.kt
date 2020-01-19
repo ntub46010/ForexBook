@@ -32,7 +32,7 @@ class EntryListAdapter(private val context: Context,
 
         val entry = getItem(position)
 
-        txtDate.text = FormatUtils.formatDate(entry.createdTime)
+        txtDate.text = FormatUtils.formatDate(entry.transactionDate)
         txtForeignAmt.text = FormatUtils.formatMoney(entry.fcyAmt)
         txtTaiwanAmt.text = FormatUtils.formatMoney(entry.twdAmt)
         txtCurrencyType.text = entry.currencyType.name

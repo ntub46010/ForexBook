@@ -10,13 +10,17 @@ import android.widget.RadioGroup
 import android.widget.Toast
 import com.vincent.forexbook.Constants
 import com.vincent.forexbook.R
+import com.vincent.forexbook.entity.BookVO
+import com.vincent.forexbook.entity.EntryPO
+import com.vincent.forexbook.entity.EntryType
 import com.vincent.forexbook.util.FormatUtils
 import kotlinx.android.synthetic.main.activity_entry_edit.*
 import java.util.*
 
 class EntryEditActivity : AppCompatActivity() {
 
-    private lateinit var bookId: String
+//    private lateinit var bookId: String
+    private lateinit var book: BookVO
     private lateinit var action: String
 
     private val editDateClickListener = View.OnClickListener {
@@ -45,8 +49,8 @@ class EntryEditActivity : AppCompatActivity() {
         setContentView(R.layout.activity_entry_edit)
 
         action = intent.getStringExtra(Constants.KEY_ACTION)
-        bookId = intent.getStringExtra(Constants.KEY_ID)
-        Toast.makeText(this, bookId, Toast.LENGTH_SHORT).show()
+        book = intent.getSerializableExtra(Constants.KEY_BOOK) as BookVO
+        Toast.makeText(this, book.id, Toast.LENGTH_SHORT).show()
 
         initToolbar()
         editDate.setOnClickListener(editDateClickListener)
@@ -63,6 +67,67 @@ class EntryEditActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
+    private fun submit() {
+        if (!validate()) {
+            return
+        }
+
+        val entryType =
+            if (radioFcyDebit.isChecked) EntryType.DEBIT
+            else EntryType.CREDIT
+
+        val twdAmt =
+            if (radioInterestCredit.isChecked) 0
+            else editTwdAmt.text.toString().toInt()
+
+        val request = EntryPO(
+            book.id,
+            entryType,
+            editFcyAmt.text.toString().toDouble(),
+            twdAmt,
+            book.currencyType,
+            FormatUtils.formatDate(editDate.text.toString()),
+            createdTime = Date()
+        )
+
+        Toast.makeText(this, request.toString(), Toast.LENGTH_SHORT).show()
+    }
+
+    private fun validate(): Boolean {
+        val dateText = editDate.text
+        val fcyAmtText = editFcyAmt.text
+        val twdAmtText = editTwdAmt.text
+        var result = true
+
+        if (radioGroupEntryType.checkedRadioButtonId == RadioGroup.NO_ID) {
+            result = false
+            Toast.makeText(this, getString(R.string.message_no_entry_type), Toast.LENGTH_SHORT).show()
+        }
+
+        if (dateText == null || dateText.isEmpty()) {
+            result = false
+            tilDate.error = getString(R.string.mandatory_field)
+        } else {
+            tilDate.error = null
+        }
+
+        if (fcyAmtText == null || fcyAmtText.isEmpty()) {
+            result = false
+            tilFcyAmt.error = getString(R.string.mandatory_field)
+        } else {
+            tilFcyAmt.error = null
+        }
+
+        if (!radioInterestCredit.isChecked && (twdAmtText == null || twdAmtText.isEmpty())) {
+            result = false
+            tilTwdAmt.error = getString(R.string.mandatory_field)
+        } else {
+            tilTwdAmt.error = null
+        }
+
+        return result
+    }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.entry_edit_page_action_buttons, menu)
         return super.onCreateOptionsMenu(menu)
@@ -70,8 +135,7 @@ class EntryEditActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {
-            R.id.action_submit ->
-                Toast.makeText(this, getString(R.string.submit), Toast.LENGTH_SHORT).show()
+            R.id.action_submit -> submit()
         }
 
         return true

@@ -72,7 +72,7 @@ class BookHomeActivity : AppCompatActivity() {
 
     private val createEntryButtonClickListener = View.OnClickListener {
         val intent = Intent(this, EntryEditActivity::class.java)
-        intent.putExtra(Constants.KEY_ID, book.id)
+        intent.putExtra(Constants.KEY_BOOK, book)
         intent.putExtra(Constants.KEY_ACTION, Constants.ACTION_CREATE)
         startActivity(intent)
     }
@@ -82,7 +82,7 @@ class BookHomeActivity : AppCompatActivity() {
         setContentView(R.layout.activity_book_home)
 
         val bundle = intent.extras!!
-        book = bundle.getSerializable(Constants.FIELD_BOOK) as BookVO
+        book = bundle.getSerializable(Constants.KEY_BOOK) as BookVO
 
         initToolbar(book.name)
         listEntry.onItemClickListener = entryItemClickListener

@@ -14,6 +14,8 @@ object FormatUtils {
 
     fun formatDate(date: Date?): String = dateFormat.format(date)
 
+    fun formatDate(dateStr: String): Date = dateFormat.parse(dateStr)
+
     fun formatDate(year: Int, month: Int, dayOfMonth: Int): String {
         // month starts with 0
         val calendar = Calendar.getInstance()

@@ -7,5 +7,5 @@ data class EntryVO(val id: String,
                    val fcyAmt: Double,
                    val twdAmt: Int,
                    val currencyType: CurrencyType,
-                   val createdTime: Date) {
+                   val transactionDate: Date) {
 }

@@ -80,6 +80,7 @@
             android:id="@+id/tilFcyAmt"
             android:layout_width="@dimen/edit_text_medium_width"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/widget_default_spacing"
             app:errorEnabled="true"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tilDate">
@@ -97,6 +98,7 @@
             android:id="@+id/tilTwdAmt"
             android:layout_width="@dimen/edit_text_medium_width"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/widget_default_spacing"
             app:errorEnabled="true"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tilFcyAmt">
