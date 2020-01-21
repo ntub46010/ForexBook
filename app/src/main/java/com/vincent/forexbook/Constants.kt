@@ -2,9 +2,11 @@ package com.vincent.forexbook
 
 object Constants {
     const val RC_SIGN_IN = 1
+    const val REQUEST_CREATE_ENTRY = 2
     const val KEY_DEFAULT_BANK = "defaultBank"
     const val KEY_ID = "id"
     const val KEY_BOOK = "book"
+    const val KEY_ENTRY = "entry"
     const val KEY_ACTION = "action"
 
     const val COLLECTION_BOOK = "book"

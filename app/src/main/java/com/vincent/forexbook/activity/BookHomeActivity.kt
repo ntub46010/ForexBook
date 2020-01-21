@@ -1,5 +1,6 @@
 package com.vincent.forexbook.activity
 
+import android.app.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -15,6 +16,7 @@ import com.vincent.forexbook.adapter.EntryListAdapter
 import com.vincent.forexbook.entity.*
 import com.vincent.forexbook.service.EntryService
 import com.vincent.forexbook.service.ExchangeRateService
+import com.vincent.forexbook.util.EntityConverter
 import com.vincent.forexbook.util.FormatUtils
 import kotlinx.android.synthetic.main.activity_book_home.*
 import kotlinx.android.synthetic.main.content_book_home_dashboard.*
@@ -74,7 +76,7 @@ class BookHomeActivity : AppCompatActivity() {
         val intent = Intent(this, EntryEditActivity::class.java)
         intent.putExtra(Constants.KEY_BOOK, book)
         intent.putExtra(Constants.KEY_ACTION, Constants.ACTION_CREATE)
-        startActivity(intent)
+        startActivityForResult(intent, Constants.REQUEST_CREATE_ENTRY)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -108,6 +110,8 @@ class BookHomeActivity : AppCompatActivity() {
 
         if (adapter == null) {
             listEntry.adapter = EntryListAdapter(this, entries.toMutableList())
+        } else {
+            (listEntry.adapter as EntryListAdapter).setItems(entries)
         }
     }
 
@@ -118,15 +122,34 @@ class BookHomeActivity : AppCompatActivity() {
             .toInt()
 
         val roi = twdSellValue - book.taiwanBalance
-        val roiRate = BigDecimal(roi)
+        val roiPercentage = BigDecimal(roi)
             .divide(BigDecimal(twdSellValue), 4, BigDecimal.ROUND_HALF_DOWN)
+            .multiply(BigDecimal(100))
             .toDouble()
 
         txtForeignBalance.text = FormatUtils.formatMoney(book.foreignBalance)
         txtForeignCurrency.text = book.currencyType.name
         txtSellValue.text = FormatUtils.formatMoney(twdSellValue)
         txtROI.text = FormatUtils.formatMoney(roi)
-        txtROIRate.text = StringBuilder("(${roiRate * 100}%)").toString()
+        txtROIRate.text = StringBuilder("($roiPercentage%)").toString()
+    }
+
+    private fun onReceiveCreatedEntry(data: Intent?) {
+        val id = data?.getStringExtra(Constants.KEY_ID) ?: return
+        val entryPO = data.getSerializableExtra(Constants.KEY_ENTRY) as EntryPO
+        val entryVO = EntityConverter.convertToEntryVO(id, entryPO)
+
+        val entries = (listEntry.adapter as EntryListAdapter).getAllItems()
+        entries.add(0, entryVO)
+        entriesLoadedCallback.onFinish(entries)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == Constants.REQUEST_CREATE_ENTRY && resultCode == Activity.RESULT_OK) {
+            onReceiveCreatedEntry(data)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

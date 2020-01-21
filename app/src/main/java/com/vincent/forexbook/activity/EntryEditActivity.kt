@@ -1,6 +1,8 @@
 package com.vincent.forexbook.activity
 
+import android.app.Activity
 import android.app.DatePickerDialog
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
@@ -19,7 +21,6 @@ import java.util.*
 
 class EntryEditActivity : AppCompatActivity() {
 
-//    private lateinit var bookId: String
     private lateinit var book: BookVO
     private lateinit var action: String
 
@@ -67,7 +68,7 @@ class EntryEditActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
-    private fun submit() {
+    private fun createEntry() {
         if (!validate()) {
             return
         }
@@ -90,7 +91,13 @@ class EntryEditActivity : AppCompatActivity() {
             createdTime = Date()
         )
 
+        // TODO: call entry service to save in DB
         Toast.makeText(this, request.toString(), Toast.LENGTH_SHORT).show()
+        val intent = Intent()
+        intent.putExtra(Constants.KEY_ID, "0")
+        intent.putExtra(Constants.KEY_ENTRY, request)
+        setResult(Activity.RESULT_OK, intent)
+        finish()
     }
 
     private fun validate(): Boolean {
@@ -114,11 +121,16 @@ class EntryEditActivity : AppCompatActivity() {
         if (fcyAmtText == null || fcyAmtText.isEmpty()) {
             result = false
             tilFcyAmt.error = getString(R.string.mandatory_field)
+        } else if (radioFcyDebit.isChecked &&
+            fcyAmtText.toString().toDouble() > book.foreignBalance) {
+            result = false
+            tilFcyAmt.error = getString(R.string.message_short_balance)
         } else {
             tilFcyAmt.error = null
         }
 
-        if (!radioInterestCredit.isChecked && (twdAmtText == null || twdAmtText.isEmpty())) {
+        if (!radioInterestCredit.isChecked &&
+            (twdAmtText == null || twdAmtText.isEmpty())) {
             result = false
             tilTwdAmt.error = getString(R.string.mandatory_field)
         } else {
@@ -135,7 +147,11 @@ class EntryEditActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {
-            R.id.action_submit -> submit()
+            R.id.action_submit -> {
+                if (action == Constants.ACTION_CREATE) {
+                    createEntry()
+                }
+            }
         }
 
         return true
