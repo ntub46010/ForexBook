@@ -7,13 +7,12 @@
     android:layout_height="match_parent"
     tools:context=".activity.BookHomeActivity">
 
-    <androidx.appcompat.widget.Toolbar
+    <include
         android:id="@+id/toolbar"
-        style="@style/DefaultToolbar"
-        app:popupTheme="@style/Theme.AppCompat.Light"
+        layout="@layout/content_toolbar"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <include
         android:id="@+id/dashboard"

@@ -20,6 +20,7 @@ import com.vincent.forexbook.util.EntityConverter
 import com.vincent.forexbook.util.FormatUtils
 import kotlinx.android.synthetic.main.activity_book_home.*
 import kotlinx.android.synthetic.main.content_book_home_dashboard.*
+import kotlinx.android.synthetic.main.content_toolbar.toolbar
 import java.math.BigDecimal
 
 class BookHomeActivity : AppCompatActivity() {

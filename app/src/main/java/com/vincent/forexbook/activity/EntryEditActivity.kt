@@ -17,6 +17,7 @@ import com.vincent.forexbook.entity.EntryPO
 import com.vincent.forexbook.entity.EntryType
 import com.vincent.forexbook.util.FormatUtils
 import kotlinx.android.synthetic.main.activity_entry_edit.*
+import kotlinx.android.synthetic.main.content_toolbar.toolbar
 import java.util.*
 
 class EntryEditActivity : AppCompatActivity() {
@@ -77,14 +78,20 @@ class EntryEditActivity : AppCompatActivity() {
             if (radioFcyDebit.isChecked) EntryType.DEBIT
             else EntryType.CREDIT
 
+        val fcyAmt =
+            if (entryType == EntryType.DEBIT) -editFcyAmt.text.toString().toDouble()
+            else editFcyAmt.text.toString().toDouble()
+
         val twdAmt =
-            if (radioInterestCredit.isChecked) 0
-            else editTwdAmt.text.toString().toInt()
+            when (entryType) {
+                EntryType.CREDIT -> editTwdAmt.text.toString().toInt()
+                EntryType.DEBIT -> -editTwdAmt.text.toString().toInt()
+            }
 
         val request = EntryPO(
             book.id,
             entryType,
-            editFcyAmt.text.toString().toDouble(),
+            fcyAmt,
             twdAmt,
             book.currencyType,
             FormatUtils.formatDate(editDate.text.toString()),
