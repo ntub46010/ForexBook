@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.EntryEditActivity">
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/content_toolbar"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:padding="@dimen/parent_default_padding"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <RadioGroup
+            android:id="@+id/radioGroupEntryType"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <RadioButton
+                android:id="@+id/radioFcyCredit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/fcy_credit"/>
+
+            <RadioButton
+                android:id="@+id/radioFcyDebit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/widget_default_spacing"
+                android:text="@string/fcy_debit"/>
+
+            <RadioButton
+                android:id="@+id/radioInterestCredit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/widget_default_spacing"
+                android:text="@string/interest_credit"/>
+
+        </RadioGroup>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilDate"
+            android:layout_width="@dimen/edit_text_medium_width"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/widget_default_spacing"
+            app:errorEnabled="true"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/radioGroupEntryType">
+
+            <EditText
+                android:id="@+id/editDate"
+                style="@style/DefaultEditText"
+                android:hint="@string/date"
+                android:editable="false"
+                android:clickable="true"
+                android:focusable="true"
+                android:importantForAutofill="no"
+                tools:ignore="TextFields" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilFcyAmt"
+            android:layout_width="@dimen/edit_text_medium_width"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/widget_default_spacing"
+            app:errorEnabled="true"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tilDate">
+
+            <EditText
+                android:id="@+id/editFcyAmt"
+                style="@style/DefaultEditText"
+                android:hint="@string/fcy_amount"
+                android:inputType="numberDecimal"
+                android:importantForAutofill="no" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilTwdAmt"
+            android:layout_width="@dimen/edit_text_medium_width"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/widget_default_spacing"
+            app:errorEnabled="true"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tilFcyAmt">
+
+            <EditText
+                android:id="@+id/editTwdAmt"
+                style="@style/DefaultEditText"
+                android:hint="@string/twd_amount"
+                android:inputType="numberDecimal"
+                android:importantForAutofill="no" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

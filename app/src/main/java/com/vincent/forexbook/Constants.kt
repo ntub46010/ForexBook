@@ -2,9 +2,17 @@ package com.vincent.forexbook
 
 object Constants {
     const val RC_SIGN_IN = 1
+    const val REQUEST_CREATE_ENTRY = 2
     const val KEY_DEFAULT_BANK = "defaultBank"
+    const val KEY_ID = "id"
+    const val KEY_BOOK = "book"
+    const val KEY_ENTRY = "entry"
+    const val KEY_ACTION = "action"
 
     const val COLLECTION_BOOK = "book"
+
+    const val ACTION_CREATE = "create"
+    const val ACTION_UPDATE = "update"
 
     const val FIELD_ID = "id"
     const val FIELD_NAME = "name"
@@ -12,7 +20,6 @@ object Constants {
     const val FIELD_CURRENCY_TYPE = "currencyType"
     const val FIELD_CREATOR = "creator"
     const val FIELD_CREATED_TIME = "createdTime"
-    const val FIELD_BOOK = "book"
 
     const val RICHART_DISCOUNT_USD = 0.03
     const val RICHART_DISCOUNT_JPY = 0.0008

@@ -13,7 +13,7 @@ import com.vincent.forexbook.entity.EntryVO
 import com.vincent.forexbook.util.FormatUtils
 
 class EntryListAdapter(private val context: Context,
-                       private val entries: MutableList<EntryVO>)
+                       private var entries: MutableList<EntryVO>)
     : BaseAdapter() {
 
     override fun getItem(position: Int) = entries[position]
@@ -32,7 +32,7 @@ class EntryListAdapter(private val context: Context,
 
         val entry = getItem(position)
 
-        txtDate.text = FormatUtils.formatDate(entry.createdTime)
+        txtDate.text = FormatUtils.formatDate(entry.transactionDate)
         txtForeignAmt.text = FormatUtils.formatMoney(entry.fcyAmt)
         txtTaiwanAmt.text = FormatUtils.formatMoney(entry.twdAmt)
         txtCurrencyType.text = entry.currencyType.name
@@ -46,5 +46,12 @@ class EntryListAdapter(private val context: Context,
         }
 
         return entryView
+    }
+
+    fun getAllItems() = entries
+
+    fun setItems(items: List<EntryVO>) {
+        entries = items.toMutableList()
+        notifyDataSetChanged()
     }
 }

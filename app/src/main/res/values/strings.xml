@@ -15,17 +15,29 @@
     <string name="twd">TWD</string>
     <string name="credit">轉入</string>
     <string name="debit">轉出</string>
+    <string name="fcy_credit">轉入外幣</string>
+    <string name="fcy_debit">轉出外幣</string>
+    <string name="interest_credit">利息收入</string>
+    <string name="date">日期</string>
+    <string name="fcy_amount">外幣金額</string>
+    <string name="twd_amount">臺幣金額</string>
 
     <string name="ok">確定</string>
+    <string name="submit">提交</string>
     <string name="cancel">取消</string>
     <string name="edit">編輯</string>
     <string name="delete">刪除</string>
     <string name="mandatory_field">必填欄位</string>
 
     <string name="title_create_book">建立帳簿</string>
+    <string name="title_create_entry">建立帳目</string>
+    <string name="title_edit_entry">編輯帳目</string>
+
     <string name="desc_create_book">請輸入帳簿名稱，並選擇銀行及幣別。</string>
 
     <string name="message_create_successful">建立成功</string>
     <string name="message_please_wait">請稍後…</string>
+    <string name="message_no_entry_type">請選擇帳目種類</string>
+    <string name="message_short_balance">餘額不足</string>
 
 </resources>
