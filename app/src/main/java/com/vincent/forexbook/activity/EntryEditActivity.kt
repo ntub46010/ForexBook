@@ -52,7 +52,6 @@ class EntryEditActivity : AppCompatActivity() {
 
         action = intent.getStringExtra(Constants.KEY_ACTION)
         book = intent.getSerializableExtra(Constants.KEY_BOOK) as BookVO
-        Toast.makeText(this, book.id, Toast.LENGTH_SHORT).show()
 
         initToolbar()
         editDate.setOnClickListener(editDateClickListener)
@@ -78,15 +77,15 @@ class EntryEditActivity : AppCompatActivity() {
             if (radioFcyDebit.isChecked) EntryType.DEBIT
             else EntryType.CREDIT
 
-        val fcyAmt =
-            if (entryType == EntryType.DEBIT) -editFcyAmt.text.toString().toDouble()
-            else editFcyAmt.text.toString().toDouble()
-
-        val twdAmt =
-            when (entryType) {
-                EntryType.CREDIT -> editTwdAmt.text.toString().toInt()
-                EntryType.DEBIT -> -editTwdAmt.text.toString().toInt()
-            }
+        val fcyAmt: Double
+        val twdAmt: Int
+        if (entryType == EntryType.CREDIT) {
+            fcyAmt = editFcyAmt.text.toString().toDouble()
+            twdAmt = editTwdAmt.text.toString().toInt()
+        } else {
+            fcyAmt = -editFcyAmt.text.toString().toDouble()
+            twdAmt = -editTwdAmt.text.toString().toInt()
+        }
 
         val request = EntryPO(
             book.id,
