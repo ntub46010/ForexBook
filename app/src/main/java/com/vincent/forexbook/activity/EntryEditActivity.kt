@@ -2,6 +2,7 @@ package com.vincent.forexbook.activity
 
 import android.app.Activity
 import android.app.DatePickerDialog
+import android.app.Dialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -11,10 +12,13 @@ import android.view.View
 import android.widget.RadioGroup
 import android.widget.Toast
 import com.vincent.forexbook.Constants
+import com.vincent.forexbook.GeneralCallback
 import com.vincent.forexbook.R
 import com.vincent.forexbook.entity.BookVO
 import com.vincent.forexbook.entity.EntryPO
 import com.vincent.forexbook.entity.EntryType
+import com.vincent.forexbook.entity.EntryVO
+import com.vincent.forexbook.service.EntryService
 import com.vincent.forexbook.util.FormatUtils
 import kotlinx.android.synthetic.main.activity_entry_edit.*
 import kotlinx.android.synthetic.main.content_toolbar.toolbar
@@ -25,10 +29,18 @@ class EntryEditActivity : AppCompatActivity() {
     private lateinit var book: BookVO
     private lateinit var action: String
 
-    private val editDateClickListener = View.OnClickListener {
-        val now = Calendar.getInstance()
+    private lateinit var dialogWaiting: Dialog
+
+    private val transactionDateClickListener = View.OnClickListener {
+        val calendar = Calendar.getInstance()
+
+        val transactionDateText = editDate.text
+        if (transactionDateText != null && transactionDateText.isNotEmpty()) {
+            calendar.time = FormatUtils.formatDate(transactionDateText.toString())
+        }
+
         DatePickerDialog(this, dateSelectedListener,
-            now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH))
+            calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH))
             .show()
     }
 
@@ -46,16 +58,36 @@ class EntryEditActivity : AppCompatActivity() {
         }
     }
 
+    private val entryCreatedListener = object : GeneralCallback<EntryVO> {
+        override fun onFinish(data: EntryVO?) {
+            val entry = data ?: return
+
+            val intent = Intent()
+            intent.putExtra(Constants.KEY_ENTRY, entry)
+            setResult(Activity.RESULT_OK, intent)
+
+            dialogWaiting.dismiss()
+            Toast.makeText(this@EntryEditActivity, getString(R.string.message_create_successful), Toast.LENGTH_SHORT).show()
+            finish()
+        }
+
+        override fun onException(e: Exception) {
+            Toast.makeText(this@EntryEditActivity, e.message, Toast.LENGTH_SHORT).show()
+            dialogWaiting.dismiss()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_entry_edit)
 
         action = intent.getStringExtra(Constants.KEY_ACTION)
         book = intent.getSerializableExtra(Constants.KEY_BOOK) as BookVO
-        Toast.makeText(this, book.id, Toast.LENGTH_SHORT).show()
 
         initToolbar()
-        editDate.setOnClickListener(editDateClickListener)
+        initWaitingDialog()
+        editDate.setOnClickListener(transactionDateClickListener)
+        editDate.setText(FormatUtils.formatDate(Date()))
         radioGroupEntryType.setOnCheckedChangeListener(entryTypeCheckListener)
     }
 
@@ -78,15 +110,17 @@ class EntryEditActivity : AppCompatActivity() {
             if (radioFcyDebit.isChecked) EntryType.DEBIT
             else EntryType.CREDIT
 
-        val fcyAmt =
-            if (entryType == EntryType.DEBIT) -editFcyAmt.text.toString().toDouble()
-            else editFcyAmt.text.toString().toDouble()
-
-        val twdAmt =
-            when (entryType) {
-                EntryType.CREDIT -> editTwdAmt.text.toString().toInt()
-                EntryType.DEBIT -> -editTwdAmt.text.toString().toInt()
-            }
+        val fcyAmt: Double
+        val twdAmt: Int
+        if (entryType == EntryType.CREDIT) {
+            fcyAmt = editFcyAmt.text.toString().toDouble()
+            val twdAmtText = editTwdAmt.text
+            twdAmt = if (twdAmtText == null || twdAmtText.isEmpty()) 0
+                else twdAmtText.toString().toInt()
+        } else {
+            fcyAmt = -editFcyAmt.text.toString().toDouble()
+            twdAmt = -editTwdAmt.text.toString().toInt()
+        }
 
         val request = EntryPO(
             book.id,
@@ -98,13 +132,8 @@ class EntryEditActivity : AppCompatActivity() {
             createdTime = Date()
         )
 
-        // TODO: call entry service to save in DB
-        Toast.makeText(this, request.toString(), Toast.LENGTH_SHORT).show()
-        val intent = Intent()
-        intent.putExtra(Constants.KEY_ID, "0")
-        intent.putExtra(Constants.KEY_ENTRY, request)
-        setResult(Activity.RESULT_OK, intent)
-        finish()
+        dialogWaiting.show()
+        EntryService.createEntry(request, entryCreatedListener)
     }
 
     private fun validate(): Boolean {
@@ -145,6 +174,12 @@ class EntryEditActivity : AppCompatActivity() {
         }
 
         return result
+    }
+
+    private fun initWaitingDialog() {
+        dialogWaiting = Dialog(this)
+        dialogWaiting.setContentView(R.layout.dialog_waiting)
+        dialogWaiting.setCancelable(false)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
