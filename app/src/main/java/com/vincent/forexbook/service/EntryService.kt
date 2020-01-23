@@ -41,4 +41,11 @@ object EntryService {
             .addOnFailureListener { clientCallback.onException(it) }
     }
 
+    fun deleteEntry(id: String, clientCallback: GeneralCallback<Void>) {
+        collection
+            .document(id)
+            .delete()
+            .addOnSuccessListener { clientCallback.onFinish(it) }
+            .addOnFailureListener { clientCallback.onException(it) }
+    }
 }

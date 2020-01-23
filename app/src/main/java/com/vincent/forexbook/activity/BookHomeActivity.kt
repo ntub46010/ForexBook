@@ -2,6 +2,7 @@ package com.vincent.forexbook.activity
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.app.Dialog
 import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -29,7 +30,8 @@ class BookHomeActivity : AppCompatActivity() {
     private lateinit var book: BookVO
     private var selectedEntryIndex = -1
 
-    private lateinit var entryActionDialog: AlertDialog
+    private lateinit var entryActionDialog: Dialog
+    private lateinit var deleteEntryConfirmDialog: Dialog
 
     private val entriesLoadedCallback = object : GeneralCallback<List<EntryVO>> {
         override fun onFinish(data: List<EntryVO>?) {
@@ -90,8 +92,28 @@ class BookHomeActivity : AppCompatActivity() {
         when (which) {
             Constants.INDEX_EDIT -> Toast.makeText(this,
                 "${getString(R.string.edit)} $selectedEntryIndex", Toast.LENGTH_SHORT).show()
-            Constants.INDEX_DELETE -> Toast.makeText(this,
-                "${getString(R.string.delete)} $selectedEntryIndex", Toast.LENGTH_SHORT).show()
+            Constants.INDEX_DELETE -> deleteEntryConfirmDialog.show()
+        }
+    }
+
+    private val deleteEntryConfirmListener = DialogInterface.OnClickListener { dialogInterface, which ->
+        if (which == DialogInterface.BUTTON_POSITIVE) {
+            // TODO: show progress bar dialog
+            val entry = listEntry.adapter.getItem(selectedEntryIndex) as EntryVO
+            EntryService.deleteEntry(entry.id, entryDeletedListener)
+        }
+    }
+
+    private val entryDeletedListener = object : GeneralCallback<Void> {
+        override fun onFinish(data: Void?) {
+            // TODO: dismiss progress bar dialog
+            Toast.makeText(this@BookHomeActivity, getString(R.string.message_delete_completed), Toast.LENGTH_SHORT).show()
+            // TODO: refresh list view data
+        }
+
+        override fun onException(e: Exception) {
+            // TODO: dismiss progress bar dialog
+            Toast.makeText(this@BookHomeActivity, e.message, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -111,6 +133,8 @@ class BookHomeActivity : AppCompatActivity() {
 
         initToolbar(book.name)
         initEntryActionDialog()
+        initDeleteConfirmDialog()
+
         listEntry.onItemClickListener = entryItemClickListener
         listEntry.onItemLongClickListener = entryItemLongClickListener
         btnCreateEntry.setOnClickListener(createEntryButtonClickListener)
@@ -136,6 +160,14 @@ class BookHomeActivity : AppCompatActivity() {
 
         entryActionDialog = AlertDialog.Builder(this)
             .setItems(actions.toTypedArray(), entryActionClickListener)
+            .create()
+    }
+
+    private fun initDeleteConfirmDialog() {
+        deleteEntryConfirmDialog = AlertDialog.Builder(this)
+            .setMessage(getString(R.string.message_delete_entry_confirm))
+            .setPositiveButton(getString(R.string.ok), deleteEntryConfirmListener)
+            .setNegativeButton(getString(R.string.cancel), null)
             .create()
     }
 
