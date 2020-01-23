@@ -125,7 +125,7 @@ class BookHomeActivity : AppCompatActivity() {
             if (twdSellValue == 0) 0.0
             else {
                 BigDecimal(roi)
-                    .divide(BigDecimal(twdSellValue), 4, BigDecimal.ROUND_HALF_DOWN)
+                    .divide(BigDecimal(book.taiwanBalance), 4, BigDecimal.ROUND_HALF_DOWN)
                     .multiply(BigDecimal(100))
                     .toDouble()
             }

@@ -61,14 +61,13 @@ class EntryEditActivity : AppCompatActivity() {
     private val entryCreatedListener = object : GeneralCallback<EntryVO> {
         override fun onFinish(data: EntryVO?) {
             val entry = data ?: return
-            dialogWaiting.dismiss()
-            Toast.makeText(this@EntryEditActivity, getString(R.string.message_create_successful), Toast.LENGTH_SHORT).show()
 
             val intent = Intent()
-            intent.putExtra(Constants.KEY_ID, entry.id)
             intent.putExtra(Constants.KEY_ENTRY, entry)
-
             setResult(Activity.RESULT_OK, intent)
+
+            dialogWaiting.dismiss()
+            Toast.makeText(this@EntryEditActivity, getString(R.string.message_create_successful), Toast.LENGTH_SHORT).show()
             finish()
         }
 
