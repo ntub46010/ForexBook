@@ -1,6 +1,8 @@
 package com.vincent.forexbook.activity
 
 import android.app.Activity
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -25,6 +27,9 @@ import java.math.BigDecimal
 class BookHomeActivity : AppCompatActivity() {
 
     private lateinit var book: BookVO
+    private var selectedEntryIndex = -1
+
+    private lateinit var entryActionDialog: AlertDialog
 
     private val entriesLoadedCallback = object : GeneralCallback<List<EntryVO>> {
         override fun onFinish(data: List<EntryVO>?) {
@@ -67,9 +72,27 @@ class BookHomeActivity : AppCompatActivity() {
         }
     }
 
+    @Deprecated("No need this listener so far")
     private val entryItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
         val entry = listEntry.adapter.getItem(position) as EntryVO
         Toast.makeText(this, entry.id, Toast.LENGTH_SHORT).show()
+    }
+
+    private val entryItemLongClickListener =
+        AdapterView.OnItemLongClickListener { parent, view, position, id ->
+            selectedEntryIndex = position
+            entryActionDialog.show()
+
+            true
+        }
+
+    private val entryActionClickListener = DialogInterface.OnClickListener { dialog, which ->
+        when (which) {
+            Constants.INDEX_EDIT -> Toast.makeText(this,
+                "${getString(R.string.edit)} $selectedEntryIndex", Toast.LENGTH_SHORT).show()
+            Constants.INDEX_DELETE -> Toast.makeText(this,
+                "${getString(R.string.delete)} $selectedEntryIndex", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private val createEntryButtonClickListener = View.OnClickListener {
@@ -87,7 +110,9 @@ class BookHomeActivity : AppCompatActivity() {
         book = bundle.getSerializable(Constants.KEY_BOOK) as BookVO
 
         initToolbar(book.name)
+        initEntryActionDialog()
         listEntry.onItemClickListener = entryItemClickListener
+        listEntry.onItemLongClickListener = entryItemLongClickListener
         btnCreateEntry.setOnClickListener(createEntryButtonClickListener)
 
         listEntry.visibility = View.INVISIBLE
@@ -102,6 +127,16 @@ class BookHomeActivity : AppCompatActivity() {
         toolbar.setNavigationOnClickListener { finish() }
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    }
+
+    private fun initEntryActionDialog() {
+        val actions = mutableListOf<String>()
+        actions.add(Constants.INDEX_EDIT, getString(R.string.edit))
+        actions.add(Constants.INDEX_DELETE, getString(R.string.delete))
+
+        entryActionDialog = AlertDialog.Builder(this)
+            .setItems(actions.toTypedArray(), entryActionClickListener)
+            .create()
     }
 
     private fun displayEntries(entries: List<EntryVO>) {

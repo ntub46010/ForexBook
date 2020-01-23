@@ -15,6 +15,9 @@ object Constants {
     const val ACTION_CREATE = "create"
     const val ACTION_UPDATE = "update"
 
+    const val INDEX_EDIT = 0
+    const val INDEX_DELETE = 1
+
     const val FIELD_NAME = "name"
     const val FIELD_BANK = "bank"
     const val FIELD_CURRENCY_TYPE = "currencyType"
