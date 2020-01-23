@@ -11,10 +11,13 @@ import android.view.View
 import android.widget.RadioGroup
 import android.widget.Toast
 import com.vincent.forexbook.Constants
+import com.vincent.forexbook.GeneralCallback
 import com.vincent.forexbook.R
 import com.vincent.forexbook.entity.BookVO
 import com.vincent.forexbook.entity.EntryPO
 import com.vincent.forexbook.entity.EntryType
+import com.vincent.forexbook.entity.EntryVO
+import com.vincent.forexbook.service.EntryService
 import com.vincent.forexbook.util.FormatUtils
 import kotlinx.android.synthetic.main.activity_entry_edit.*
 import kotlinx.android.synthetic.main.content_toolbar.toolbar
@@ -46,6 +49,26 @@ class EntryEditActivity : AppCompatActivity() {
         }
     }
 
+    private val entryCreatedListener = object : GeneralCallback<EntryVO> {
+        override fun onFinish(data: EntryVO?) {
+            val entry = data ?: return
+            // TODO: progress dialog dismiss
+            Toast.makeText(this@EntryEditActivity, getString(R.string.message_create_successful), Toast.LENGTH_SHORT).show()
+
+            val intent = Intent()
+            intent.putExtra(Constants.KEY_ID, entry.id)
+            intent.putExtra(Constants.KEY_ENTRY, entry)
+
+            setResult(Activity.RESULT_OK, intent)
+            finish()
+        }
+
+        override fun onException(e: Exception) {
+            Toast.makeText(this@EntryEditActivity, e.message, Toast.LENGTH_SHORT).show()
+            // TODO: progress dialog dismiss
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_entry_edit)
@@ -55,6 +78,7 @@ class EntryEditActivity : AppCompatActivity() {
 
         initToolbar()
         editDate.setOnClickListener(editDateClickListener)
+        editDate.setText(FormatUtils.formatDate(Date()))
         radioGroupEntryType.setOnCheckedChangeListener(entryTypeCheckListener)
     }
 
@@ -81,7 +105,9 @@ class EntryEditActivity : AppCompatActivity() {
         val twdAmt: Int
         if (entryType == EntryType.CREDIT) {
             fcyAmt = editFcyAmt.text.toString().toDouble()
-            twdAmt = editTwdAmt.text.toString().toInt()
+            val twdAmtText = editTwdAmt.text
+            twdAmt = if (twdAmtText == null || twdAmtText.isEmpty()) 0
+                else twdAmtText.toString().toInt()
         } else {
             fcyAmt = -editFcyAmt.text.toString().toDouble()
             twdAmt = -editTwdAmt.text.toString().toInt()
@@ -97,13 +123,7 @@ class EntryEditActivity : AppCompatActivity() {
             createdTime = Date()
         )
 
-        // TODO: call entry service to save in DB
-        Toast.makeText(this, request.toString(), Toast.LENGTH_SHORT).show()
-        val intent = Intent()
-        intent.putExtra(Constants.KEY_ID, "0")
-        intent.putExtra(Constants.KEY_ENTRY, request)
-        setResult(Activity.RESULT_OK, intent)
-        finish()
+        EntryService.createEntry(request, entryCreatedListener)
     }
 
     private fun validate(): Boolean {

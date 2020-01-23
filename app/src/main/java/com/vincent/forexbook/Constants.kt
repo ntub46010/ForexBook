@@ -10,16 +10,21 @@ object Constants {
     const val KEY_ACTION = "action"
 
     const val COLLECTION_BOOK = "book"
+    const val COLLECTION_ENTRY = "entry"
 
     const val ACTION_CREATE = "create"
     const val ACTION_UPDATE = "update"
 
-    const val FIELD_ID = "id"
     const val FIELD_NAME = "name"
     const val FIELD_BANK = "bank"
     const val FIELD_CURRENCY_TYPE = "currencyType"
     const val FIELD_CREATOR = "creator"
     const val FIELD_CREATED_TIME = "createdTime"
+    const val FIELD_ENTRY_TYPE = "entryType"
+    const val FIELD_FCY_AMT = "fcyAmt"
+    const val FIELD_TWD_AMT = "twdAmt"
+    const val FIELD_TRANSACTION_DATE = "transactionDate"
+    const val FIELD_BOOK_ID = "bookId"
 
     const val RICHART_DISCOUNT_USD = 0.03
     const val RICHART_DISCOUNT_JPY = 0.0008

@@ -12,7 +12,7 @@ object BookService {
 
     private var collection = FirebaseFirestore.getInstance().collection(Constants.COLLECTION_BOOK)
 
-    fun createBook(bookPO: BookPO, uiCallback: GeneralCallback<BookVO>) {
+    fun createBook(bookPO: BookPO, clientCallback: GeneralCallback<BookVO>) {
         bookPO.creator = AuthenticationService.getUserId()!!
 
         collection
@@ -21,15 +21,13 @@ object BookService {
                 docRef.get().addOnSuccessListener { snapshot ->
                     val book = EntityConverter.convertToBookVO(snapshot)
                     // TODO: save in cache
-                    uiCallback.onFinish(book)
+                    clientCallback.onFinish(book)
                 }
             }
-            .addOnFailureListener {
-                uiCallback.onException(it)
-            }
+            .addOnFailureListener { clientCallback.onException(it) }
     }
 
-    fun loadBooks(uiCallback: GeneralCallback<List<BookVO>>) {
+    fun loadBooks(clientCallback: GeneralCallback<List<BookVO>>) {
         val userId = AuthenticationService.getUserId()!!
 
         collection
@@ -38,14 +36,10 @@ object BookService {
             .get()
             .addOnSuccessListener { querySnapshot ->
                 val snapshots = querySnapshot.documents
-                val books = snapshots.asSequence()
-                    .map { EntityConverter.convertToBookVO(it) }
-                    .toList()
+                val books = EntityConverter.convertToBookVOs(snapshots)
 
-                uiCallback.onFinish(books)
+                clientCallback.onFinish(books)
             }
-            .addOnFailureListener {
-                uiCallback.onException(it)
-            }
+            .addOnFailureListener { clientCallback.onException(it) }
     }
 }

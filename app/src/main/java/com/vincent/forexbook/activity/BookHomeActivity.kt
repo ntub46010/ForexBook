@@ -16,7 +16,6 @@ import com.vincent.forexbook.adapter.EntryListAdapter
 import com.vincent.forexbook.entity.*
 import com.vincent.forexbook.service.EntryService
 import com.vincent.forexbook.service.ExchangeRateService
-import com.vincent.forexbook.util.EntityConverter
 import com.vincent.forexbook.util.FormatUtils
 import kotlinx.android.synthetic.main.activity_book_home.*
 import kotlinx.android.synthetic.main.content_book_home_dashboard.*
@@ -92,8 +91,7 @@ class BookHomeActivity : AppCompatActivity() {
         btnCreateEntry.setOnClickListener(createEntryButtonClickListener)
 
         listEntry.visibility = View.INVISIBLE
-        //EntryService.loadEntries(book.id, entriesLoadedCallback)
-        EntryService.loadMockEntries(book.currencyType, entriesLoadedCallback)
+        EntryService.loadEntries(book.id, entriesLoadedCallback)
     }
 
     private fun initToolbar(title: String) {
@@ -123,10 +121,14 @@ class BookHomeActivity : AppCompatActivity() {
             .toInt()
 
         val roi = twdSellValue - book.taiwanBalance
-        val roiPercentage = BigDecimal(roi)
-            .divide(BigDecimal(twdSellValue), 4, BigDecimal.ROUND_HALF_DOWN)
-            .multiply(BigDecimal(100))
-            .toDouble()
+        val roiPercentage =
+            if (twdSellValue == 0) 0.0
+            else {
+                BigDecimal(roi)
+                    .divide(BigDecimal(twdSellValue), 4, BigDecimal.ROUND_HALF_DOWN)
+                    .multiply(BigDecimal(100))
+                    .toDouble()
+            }
 
         txtForeignBalance.text = FormatUtils.formatMoney(book.foreignBalance)
         txtForeignCurrency.text = book.currencyType.name
@@ -136,12 +138,10 @@ class BookHomeActivity : AppCompatActivity() {
     }
 
     private fun onReceiveCreatedEntry(data: Intent?) {
-        val id = data?.getStringExtra(Constants.KEY_ID) ?: return
-        val entryPO = data.getSerializableExtra(Constants.KEY_ENTRY) as EntryPO
-        val entryVO = EntityConverter.convertToEntryVO(id, entryPO)
+        val entry = data?.getSerializableExtra(Constants.KEY_ENTRY) as EntryVO
 
         val entries = (listEntry.adapter as EntryListAdapter).getAllItems()
-        entries.add(0, entryVO)
+        entries.add(0, entry)
         entriesLoadedCallback.onFinish(entries)
     }
 

@@ -6,6 +6,12 @@ import com.vincent.forexbook.entity.*
 
 object EntityConverter {
 
+    fun convertToBookVOs(snapshots: List<DocumentSnapshot>): List<BookVO> {
+        return snapshots.asSequence()
+            .map { convertToBookVO(it) }
+            .toList()
+    }
+
     fun convertToBookVO(snapshot: DocumentSnapshot): BookVO {
         val map = snapshot.data!!
 
@@ -17,14 +23,22 @@ object EntityConverter {
             snapshot.getDate(Constants.FIELD_CREATED_TIME)!!)
     }
 
-    fun convertToEntryVO(id: String, entryPO: EntryPO): EntryVO {
-        return EntryVO(
-            id,
-            entryPO.entryType,
-            entryPO.fcyAmt,
-            entryPO.twdAmt,
-            entryPO.currencyType,
-            entryPO.transactionDate
-        )
+    fun convertToEntryVOs(snapshots: List<DocumentSnapshot>): List<EntryVO> {
+        return snapshots.asSequence()
+            .map { convertToEntryVO(it) }
+            .toList()
     }
+
+    fun convertToEntryVO(snapshot: DocumentSnapshot): EntryVO {
+        val map = snapshot.data!!
+
+        return EntryVO(
+            snapshot.id,
+            EntryType.valueOf(map[Constants.FIELD_ENTRY_TYPE].toString()),
+            map[Constants.FIELD_FCY_AMT] as Double,
+            map[Constants.FIELD_TWD_AMT] as Long,
+            CurrencyType.valueOf(map[Constants.FIELD_CURRENCY_TYPE].toString()),
+            snapshot.getDate(Constants.FIELD_TRANSACTION_DATE)!!)
+    }
+
 }
