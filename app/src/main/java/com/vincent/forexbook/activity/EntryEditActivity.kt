@@ -2,6 +2,7 @@ package com.vincent.forexbook.activity
 
 import android.app.Activity
 import android.app.DatePickerDialog
+import android.app.Dialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -28,10 +29,18 @@ class EntryEditActivity : AppCompatActivity() {
     private lateinit var book: BookVO
     private lateinit var action: String
 
-    private val editDateClickListener = View.OnClickListener {
-        val now = Calendar.getInstance()
+    private lateinit var dialogWaiting: Dialog
+
+    private val transactionDateClickListener = View.OnClickListener {
+        val calendar = Calendar.getInstance()
+
+        val transactionDateText = editDate.text
+        if (transactionDateText != null && transactionDateText.isNotEmpty()) {
+            calendar.time = FormatUtils.formatDate(transactionDateText.toString())
+        }
+
         DatePickerDialog(this, dateSelectedListener,
-            now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH))
+            calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH))
             .show()
     }
 
@@ -52,7 +61,7 @@ class EntryEditActivity : AppCompatActivity() {
     private val entryCreatedListener = object : GeneralCallback<EntryVO> {
         override fun onFinish(data: EntryVO?) {
             val entry = data ?: return
-            // TODO: progress dialog dismiss
+            dialogWaiting.dismiss()
             Toast.makeText(this@EntryEditActivity, getString(R.string.message_create_successful), Toast.LENGTH_SHORT).show()
 
             val intent = Intent()
@@ -65,7 +74,7 @@ class EntryEditActivity : AppCompatActivity() {
 
         override fun onException(e: Exception) {
             Toast.makeText(this@EntryEditActivity, e.message, Toast.LENGTH_SHORT).show()
-            // TODO: progress dialog dismiss
+            dialogWaiting.dismiss()
         }
     }
 
@@ -77,7 +86,8 @@ class EntryEditActivity : AppCompatActivity() {
         book = intent.getSerializableExtra(Constants.KEY_BOOK) as BookVO
 
         initToolbar()
-        editDate.setOnClickListener(editDateClickListener)
+        initWaitingDialog()
+        editDate.setOnClickListener(transactionDateClickListener)
         editDate.setText(FormatUtils.formatDate(Date()))
         radioGroupEntryType.setOnCheckedChangeListener(entryTypeCheckListener)
     }
@@ -123,6 +133,7 @@ class EntryEditActivity : AppCompatActivity() {
             createdTime = Date()
         )
 
+        dialogWaiting.show()
         EntryService.createEntry(request, entryCreatedListener)
     }
 
@@ -164,6 +175,12 @@ class EntryEditActivity : AppCompatActivity() {
         }
 
         return result
+    }
+
+    private fun initWaitingDialog() {
+        dialogWaiting = Dialog(this)
+        dialogWaiting.setContentView(R.layout.dialog_waiting)
+        dialogWaiting.setCancelable(false)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

@@ -18,7 +18,7 @@
     <string name="fcy_credit">轉入外幣</string>
     <string name="fcy_debit">轉出外幣</string>
     <string name="interest_credit">利息收入</string>
-    <string name="date">日期</string>
+    <string name="transactionDate">交易日期</string>
     <string name="fcy_amount">外幣金額</string>
     <string name="twd_amount">臺幣金額</string>
 
