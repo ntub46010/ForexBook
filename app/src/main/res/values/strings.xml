@@ -30,14 +30,15 @@
     <string name="mandatory_field">必填欄位</string>
 
     <string name="title_create_book">建立帳簿</string>
-    <string name="title_create_entry">建立帳目</string>
+    <string name="title_create_entry">建立新帳目</string>
     <string name="title_edit_entry">編輯帳目</string>
 
     <string name="desc_create_book">請輸入帳簿名稱，並選擇銀行及幣別。</string>
 
     <string name="message_create_successful">建立成功</string>
+    <string name="message_update_successful">更新成功</string>
     <string name="message_delete_completed">刪除完成</string>
-    <string name="message_delete_entry_confirm">確定要刪除這個帳目嗎？此舉無法復原。</string>
+    <string name="message_delete_entry_confirm">確定要刪除這筆帳目嗎？此舉無法復原。</string>
     <string name="message_please_wait">請稍後…</string>
     <string name="message_no_entry_type">請選擇帳目種類</string>
     <string name="message_short_balance">餘額不足</string>

@@ -79,6 +79,25 @@ class EntryEditActivity : AppCompatActivity() {
         }
     }
 
+    private val entryUpdatedListener = object : GeneralCallback<EntryVO> {
+        override fun onFinish(data: EntryVO?) {
+            val entry = data ?: return
+
+            val intent = Intent()
+            intent.putExtra(Constants.KEY_ENTRY, entry)
+            setResult(Activity.RESULT_OK, intent)
+
+            dialogWaiting.dismiss()
+            Toast.makeText(this@EntryEditActivity, getString(R.string.message_update_successful), Toast.LENGTH_SHORT).show()
+            finish()
+        }
+
+        override fun onException(e: Exception) {
+            dialogWaiting.dismiss()
+            Toast.makeText(this@EntryEditActivity, e.message, Toast.LENGTH_SHORT).show()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_entry_edit)
@@ -147,8 +166,8 @@ class EntryEditActivity : AppCompatActivity() {
         }
 
         val entryInfo = generateEntryInfoMap()
-        // TODO: show progress bar dialog and call entry service
-        Toast.makeText(this, entryInfo.toString(), Toast.LENGTH_SHORT).show()
+        dialogWaiting.show()
+        EntryService.patchEntry(entry!!, entryInfo, entryUpdatedListener)
     }
 
     private fun validate(): Boolean {
