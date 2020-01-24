@@ -27,7 +27,6 @@ import kotlin.math.abs
 
 class EntryEditActivity : AppCompatActivity() {
 
-    // TODO: May be nullable just like entry
     private lateinit var book: BookVO
     private var entry: EntryVO? = null
     private lateinit var action: String
@@ -87,7 +86,9 @@ class EntryEditActivity : AppCompatActivity() {
         action = intent.getStringExtra(Constants.KEY_ACTION)
         book = intent.getSerializableExtra(Constants.KEY_BOOK) as BookVO
 
-        if (action == Constants.ACTION_UPDATE) {
+        if (action == Constants.ACTION_CREATE) {
+            editDate.setText(FormatUtils.formatDate(Date()))
+        } else {
             entry = intent.getSerializableExtra(Constants.KEY_ENTRY) as EntryVO
             setEntryDataToField(entry!!)
         }
@@ -95,7 +96,6 @@ class EntryEditActivity : AppCompatActivity() {
         initToolbar()
         initWaitingDialog()
         editDate.setOnClickListener(transactionDateClickListener)
-        editDate.setText(FormatUtils.formatDate(Date()))
         radioGroupEntryType.setOnCheckedChangeListener(entryTypeCheckListener)
     }
 
@@ -126,34 +126,29 @@ class EntryEditActivity : AppCompatActivity() {
             return
         }
 
-        val entryType =
-            if (radioFcyDebit.isChecked) EntryType.DEBIT
-            else EntryType.CREDIT
-
-        val fcyAmt: Double
-        val twdAmt: Int
-        if (entryType == EntryType.CREDIT) {
-            fcyAmt = editFcyAmt.text.toString().toDouble()
-            val twdAmtText = editTwdAmt.text
-            twdAmt = if (twdAmtText == null || twdAmtText.isEmpty()) 0
-                else twdAmtText.toString().toInt()
-        } else {
-            fcyAmt = -editFcyAmt.text.toString().toDouble()
-            twdAmt = -editTwdAmt.text.toString().toInt()
-        }
-
+        val entryInfo = generateEntryInfoMap()
         val request = EntryPO(
             book.id,
-            entryType,
-            fcyAmt,
-            twdAmt,
+            entryInfo[Constants.FIELD_ENTRY_TYPE] as EntryType,
+            entryInfo[Constants.FIELD_FCY_AMT] as Double,
+            entryInfo[Constants.FIELD_TWD_AMT] as Int,
             book.currencyType,
-            FormatUtils.formatDate(editDate.text.toString()),
+            entryInfo[Constants.FIELD_TRANSACTION_DATE] as Date,
             createdTime = Date()
         )
 
         dialogWaiting.show()
         EntryService.createEntry(request, entryCreatedListener)
+    }
+
+    private fun updateEntry() {
+        if (!validate()) {
+            return
+        }
+
+        val entryInfo = generateEntryInfoMap()
+        // TODO: show progress bar dialog and call entry service
+        Toast.makeText(this, entryInfo.toString(), Toast.LENGTH_SHORT).show()
     }
 
     private fun validate(): Boolean {
@@ -174,11 +169,15 @@ class EntryEditActivity : AppCompatActivity() {
             tilDate.error = null
         }
 
+        val previousForeignBalance =
+            if (action == Constants.ACTION_CREATE) book.foreignBalance
+            else book.foreignBalance - entry!!.fcyAmt
+
         if (fcyAmtText == null || fcyAmtText.isEmpty()) {
             result = false
             tilFcyAmt.error = getString(R.string.mandatory_field)
         } else if (radioFcyDebit.isChecked &&
-            fcyAmtText.toString().toDouble() > book.foreignBalance) {
+            fcyAmtText.toString().toDouble() > previousForeignBalance) {
             result = false
             tilFcyAmt.error = getString(R.string.message_short_balance)
         } else {
@@ -194,6 +193,30 @@ class EntryEditActivity : AppCompatActivity() {
         }
 
         return result
+    }
+
+    private fun generateEntryInfoMap(): Map<String, Any> {
+        val entryType =
+            if (radioFcyDebit.isChecked) EntryType.DEBIT
+            else EntryType.CREDIT
+
+        val fcyAmt: Double
+        val twdAmt: Int
+        if (entryType == EntryType.CREDIT) {
+            fcyAmt = editFcyAmt.text.toString().toDouble()
+            val twdAmtText = editTwdAmt.text
+            twdAmt = if (twdAmtText == null || twdAmtText.isEmpty()) 0
+            else twdAmtText.toString().toInt()
+        } else {
+            fcyAmt = -editFcyAmt.text.toString().toDouble()
+            twdAmt = -editTwdAmt.text.toString().toInt()
+        }
+
+        return mapOf(
+            Constants.FIELD_ENTRY_TYPE to entryType,
+            Constants.FIELD_TRANSACTION_DATE to FormatUtils.formatDate(editDate.text.toString()),
+            Constants.FIELD_FCY_AMT to fcyAmt,
+            Constants.FIELD_TWD_AMT to twdAmt)
     }
 
     private fun initWaitingDialog() {
@@ -212,6 +235,8 @@ class EntryEditActivity : AppCompatActivity() {
             R.id.action_submit -> {
                 if (action == Constants.ACTION_CREATE) {
                     createEntry()
+                } else {
+                    updateEntry()
                 }
             }
         }
