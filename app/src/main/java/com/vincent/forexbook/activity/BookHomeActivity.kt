@@ -92,8 +92,15 @@ class BookHomeActivity : AppCompatActivity() {
 
     private val entryActionClickListener = DialogInterface.OnClickListener { dialog, which ->
         when (which) {
-            Constants.INDEX_EDIT -> Toast.makeText(this,
-                "${getString(R.string.edit)} $selectedEntryIndex", Toast.LENGTH_SHORT).show()
+            Constants.INDEX_EDIT -> {
+                val entry = listEntry.adapter.getItem(selectedEntryIndex) as EntryVO
+
+                val intent = Intent(this, EntryEditActivity::class.java)
+                intent.putExtra(Constants.KEY_ACTION, Constants.ACTION_UPDATE)
+                intent.putExtra(Constants.KEY_BOOK, book)
+                intent.putExtra(Constants.KEY_ENTRY, entry)
+                startActivityForResult(intent, Constants.REQUEST_EDIT_ENTRY)
+            }
             Constants.INDEX_DELETE -> deleteEntryConfirmDialog.show()
         }
     }
@@ -227,11 +234,23 @@ class BookHomeActivity : AppCompatActivity() {
         entriesLoadedCallback.onFinish(entries)
     }
 
+    private fun onReceiveUpdatedEntry(data: Intent?) {
+        val entry = data?.getSerializableExtra(Constants.KEY_ENTRY) as EntryVO
+
+        val adapter = (listEntry.adapter as EntryListAdapter)
+        adapter.setItem(selectedEntryIndex, entry)
+
+        val entries = adapter.getAllItems()
+        entriesLoadedCallback.onFinish(entries)
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == Constants.REQUEST_CREATE_ENTRY && resultCode == Activity.RESULT_OK) {
             onReceiveCreatedEntry(data)
+        } else if (requestCode == Constants.REQUEST_EDIT_ENTRY && resultCode == Activity.RESULT_OK) {
+            onReceiveUpdatedEntry(data)
         }
     }
 

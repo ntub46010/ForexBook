@@ -23,10 +23,13 @@ import com.vincent.forexbook.util.FormatUtils
 import kotlinx.android.synthetic.main.activity_entry_edit.*
 import kotlinx.android.synthetic.main.content_toolbar.toolbar
 import java.util.*
+import kotlin.math.abs
 
 class EntryEditActivity : AppCompatActivity() {
 
+    // TODO: May be nullable just like entry
     private lateinit var book: BookVO
+    private var entry: EntryVO? = null
     private lateinit var action: String
 
     private lateinit var dialogWaiting: Dialog
@@ -84,6 +87,11 @@ class EntryEditActivity : AppCompatActivity() {
         action = intent.getStringExtra(Constants.KEY_ACTION)
         book = intent.getSerializableExtra(Constants.KEY_BOOK) as BookVO
 
+        if (action == Constants.ACTION_UPDATE) {
+            entry = intent.getSerializableExtra(Constants.KEY_ENTRY) as EntryVO
+            setEntryDataToField(entry!!)
+        }
+
         initToolbar()
         initWaitingDialog()
         editDate.setOnClickListener(transactionDateClickListener)
@@ -99,6 +107,18 @@ class EntryEditActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         toolbar.setNavigationOnClickListener { finish() }
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    }
+
+    private fun setEntryDataToField(entry: EntryVO) {
+        when {
+            entry.entryType == EntryType.DEBIT -> radioFcyDebit.isChecked = true
+            entry.twdAmt == 0 -> radioInterestCredit.isChecked = true
+            else -> radioFcyCredit.isChecked = true
+        }
+
+        editDate.setText(FormatUtils.formatDate(entry.transactionDate))
+        editFcyAmt.setText(abs(entry.fcyAmt).toString())
+        editTwdAmt.setText(abs(entry.twdAmt).toString())
     }
 
     private fun createEntry() {
