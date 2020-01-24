@@ -54,4 +54,9 @@ class EntryListAdapter(private val context: Context,
         entries = items.toMutableList()
         notifyDataSetChanged()
     }
+
+    fun removeItem(position: Int) {
+        entries.removeAt(position)
+        notifyDataSetChanged()
+    }
 }

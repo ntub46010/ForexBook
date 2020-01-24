@@ -28,10 +28,12 @@ import java.math.BigDecimal
 class BookHomeActivity : AppCompatActivity() {
 
     private lateinit var book: BookVO
-    private var selectedEntryIndex = -1
+    private val DEFAULT_INDEX = -1
+    private var selectedEntryIndex = DEFAULT_INDEX
 
     private lateinit var entryActionDialog: Dialog
     private lateinit var deleteEntryConfirmDialog: Dialog
+    private lateinit var dialogWaiting: Dialog
 
     private val entriesLoadedCallback = object : GeneralCallback<List<EntryVO>> {
         override fun onFinish(data: List<EntryVO>?) {
@@ -98,7 +100,7 @@ class BookHomeActivity : AppCompatActivity() {
 
     private val deleteEntryConfirmListener = DialogInterface.OnClickListener { dialogInterface, which ->
         if (which == DialogInterface.BUTTON_POSITIVE) {
-            // TODO: show progress bar dialog
+            dialogWaiting.show()
             val entry = listEntry.adapter.getItem(selectedEntryIndex) as EntryVO
             EntryService.deleteEntry(entry.id, entryDeletedListener)
         }
@@ -106,13 +108,19 @@ class BookHomeActivity : AppCompatActivity() {
 
     private val entryDeletedListener = object : GeneralCallback<Void> {
         override fun onFinish(data: Void?) {
-            // TODO: dismiss progress bar dialog
+            dialogWaiting.dismiss()
             Toast.makeText(this@BookHomeActivity, getString(R.string.message_delete_completed), Toast.LENGTH_SHORT).show()
-            // TODO: refresh list view data
+
+            val adapter = (listEntry.adapter as EntryListAdapter)
+            adapter.removeItem(selectedEntryIndex)
+            selectedEntryIndex = DEFAULT_INDEX
+
+            val entries = adapter.getAllItems()
+            entriesLoadedCallback.onFinish(entries)
         }
 
         override fun onException(e: Exception) {
-            // TODO: dismiss progress bar dialog
+            dialogWaiting.dismiss()
             Toast.makeText(this@BookHomeActivity, e.message, Toast.LENGTH_SHORT).show()
         }
     }
@@ -134,6 +142,7 @@ class BookHomeActivity : AppCompatActivity() {
         initToolbar(book.name)
         initEntryActionDialog()
         initDeleteConfirmDialog()
+        initWaitingDialog()
 
         listEntry.onItemClickListener = entryItemClickListener
         listEntry.onItemLongClickListener = entryItemLongClickListener
@@ -169,6 +178,12 @@ class BookHomeActivity : AppCompatActivity() {
             .setPositiveButton(getString(R.string.ok), deleteEntryConfirmListener)
             .setNegativeButton(getString(R.string.cancel), null)
             .create()
+    }
+
+    private fun initWaitingDialog() {
+        dialogWaiting = Dialog(this)
+        dialogWaiting.setContentView(R.layout.dialog_waiting)
+        dialogWaiting.setCancelable(false)
     }
 
     private fun displayEntries(entries: List<EntryVO>) {
