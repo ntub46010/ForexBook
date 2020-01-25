@@ -124,11 +124,15 @@ class BookHomeActivity : AppCompatActivity() {
 
     private val bookDeletedListener = object : GeneralCallback<String> {
         override fun onFinish(data: String?) {
-            Toast.makeText(this@BookHomeActivity, getString(R.string.message_delete_completed), Toast.LENGTH_SHORT).show()
             dialogWaiting.dismiss()
+            Toast.makeText(this@BookHomeActivity, getString(R.string.message_delete_completed), Toast.LENGTH_SHORT).show()
 
-            // TODO: back to book list fragment
-            val bookId = data!!
+            val bookId = data ?: return
+
+            val intent = Intent()
+            intent.putExtra(Constants.KEY_BOOK_ID, bookId)
+            setResult(Constants.RESULT_DELETE_BOOK, intent)
+            finish()
         }
 
         override fun onException(e: Exception) {
