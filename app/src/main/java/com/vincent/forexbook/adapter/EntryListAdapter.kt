@@ -50,8 +50,18 @@ class EntryListAdapter(private val context: Context,
 
     fun getAllItems() = entries
 
+    fun setItem(position: Int, item: EntryVO) {
+        entries[position] = item
+        notifyDataSetChanged()
+    }
+
     fun setItems(items: List<EntryVO>) {
         entries = items.toMutableList()
+        notifyDataSetChanged()
+    }
+
+    fun removeItem(position: Int) {
+        entries.removeAt(position)
         notifyDataSetChanged()
     }
 }

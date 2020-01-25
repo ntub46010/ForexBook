@@ -1,6 +1,9 @@
 package com.vincent.forexbook.activity
 
 import android.app.Activity
+import android.app.AlertDialog
+import android.app.Dialog
+import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -25,6 +28,12 @@ import java.math.BigDecimal
 class BookHomeActivity : AppCompatActivity() {
 
     private lateinit var book: BookVO
+    private val DEFAULT_INDEX = -1
+    private var selectedEntryIndex = DEFAULT_INDEX
+
+    private lateinit var entryActionDialog: Dialog
+    private lateinit var deleteEntryConfirmDialog: Dialog
+    private lateinit var dialogWaiting: Dialog
 
     private val entriesLoadedCallback = object : GeneralCallback<List<EntryVO>> {
         override fun onFinish(data: List<EntryVO>?) {
@@ -67,9 +76,60 @@ class BookHomeActivity : AppCompatActivity() {
         }
     }
 
+    @Deprecated("No need this listener so far")
     private val entryItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
         val entry = listEntry.adapter.getItem(position) as EntryVO
         Toast.makeText(this, entry.id, Toast.LENGTH_SHORT).show()
+    }
+
+    private val entryItemLongClickListener =
+        AdapterView.OnItemLongClickListener { parent, view, position, id ->
+            selectedEntryIndex = position
+            entryActionDialog.show()
+
+            true
+        }
+
+    private val entryActionClickListener = DialogInterface.OnClickListener { dialog, which ->
+        when (which) {
+            Constants.INDEX_EDIT -> {
+                val entry = listEntry.adapter.getItem(selectedEntryIndex) as EntryVO
+
+                val intent = Intent(this, EntryEditActivity::class.java)
+                intent.putExtra(Constants.KEY_ACTION, Constants.ACTION_UPDATE)
+                intent.putExtra(Constants.KEY_BOOK, book)
+                intent.putExtra(Constants.KEY_ENTRY, entry)
+                startActivityForResult(intent, Constants.REQUEST_EDIT_ENTRY)
+            }
+            Constants.INDEX_DELETE -> deleteEntryConfirmDialog.show()
+        }
+    }
+
+    private val deleteEntryConfirmListener = DialogInterface.OnClickListener { dialogInterface, which ->
+        if (which == DialogInterface.BUTTON_POSITIVE) {
+            dialogWaiting.show()
+            val entry = listEntry.adapter.getItem(selectedEntryIndex) as EntryVO
+            EntryService.deleteEntry(entry.id, entryDeletedListener)
+        }
+    }
+
+    private val entryDeletedListener = object : GeneralCallback<Void> {
+        override fun onFinish(data: Void?) {
+            dialogWaiting.dismiss()
+            Toast.makeText(this@BookHomeActivity, getString(R.string.message_delete_completed), Toast.LENGTH_SHORT).show()
+
+            val adapter = (listEntry.adapter as EntryListAdapter)
+            adapter.removeItem(selectedEntryIndex)
+            selectedEntryIndex = DEFAULT_INDEX
+
+            val entries = adapter.getAllItems()
+            entriesLoadedCallback.onFinish(entries)
+        }
+
+        override fun onException(e: Exception) {
+            dialogWaiting.dismiss()
+            Toast.makeText(this@BookHomeActivity, e.message, Toast.LENGTH_SHORT).show()
+        }
     }
 
     private val createEntryButtonClickListener = View.OnClickListener {
@@ -87,7 +147,12 @@ class BookHomeActivity : AppCompatActivity() {
         book = bundle.getSerializable(Constants.KEY_BOOK) as BookVO
 
         initToolbar(book.name)
+        initEntryActionDialog()
+        initDeleteConfirmDialog()
+        initWaitingDialog()
+
         listEntry.onItemClickListener = entryItemClickListener
+        listEntry.onItemLongClickListener = entryItemLongClickListener
         btnCreateEntry.setOnClickListener(createEntryButtonClickListener)
 
         listEntry.visibility = View.INVISIBLE
@@ -102,6 +167,30 @@ class BookHomeActivity : AppCompatActivity() {
         toolbar.setNavigationOnClickListener { finish() }
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    }
+
+    private fun initEntryActionDialog() {
+        val actions = mutableListOf<String>()
+        actions.add(Constants.INDEX_EDIT, getString(R.string.edit))
+        actions.add(Constants.INDEX_DELETE, getString(R.string.delete))
+
+        entryActionDialog = AlertDialog.Builder(this)
+            .setItems(actions.toTypedArray(), entryActionClickListener)
+            .create()
+    }
+
+    private fun initDeleteConfirmDialog() {
+        deleteEntryConfirmDialog = AlertDialog.Builder(this)
+            .setMessage(getString(R.string.message_delete_entry_confirm))
+            .setPositiveButton(getString(R.string.ok), deleteEntryConfirmListener)
+            .setNegativeButton(getString(R.string.cancel), null)
+            .create()
+    }
+
+    private fun initWaitingDialog() {
+        dialogWaiting = Dialog(this)
+        dialogWaiting.setContentView(R.layout.dialog_waiting)
+        dialogWaiting.setCancelable(false)
     }
 
     private fun displayEntries(entries: List<EntryVO>) {
@@ -145,11 +234,23 @@ class BookHomeActivity : AppCompatActivity() {
         entriesLoadedCallback.onFinish(entries)
     }
 
+    private fun onReceiveUpdatedEntry(data: Intent?) {
+        val entry = data?.getSerializableExtra(Constants.KEY_ENTRY) as EntryVO
+
+        val adapter = (listEntry.adapter as EntryListAdapter)
+        adapter.setItem(selectedEntryIndex, entry)
+
+        val entries = adapter.getAllItems()
+        entriesLoadedCallback.onFinish(entries)
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == Constants.REQUEST_CREATE_ENTRY && resultCode == Activity.RESULT_OK) {
             onReceiveCreatedEntry(data)
+        } else if (requestCode == Constants.REQUEST_EDIT_ENTRY && resultCode == Activity.RESULT_OK) {
+            onReceiveUpdatedEntry(data)
         }
     }
 

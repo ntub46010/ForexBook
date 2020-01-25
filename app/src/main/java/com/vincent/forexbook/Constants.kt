@@ -3,6 +3,7 @@ package com.vincent.forexbook
 object Constants {
     const val RC_SIGN_IN = 1
     const val REQUEST_CREATE_ENTRY = 2
+    const val REQUEST_EDIT_ENTRY = 3
     const val KEY_DEFAULT_BANK = "defaultBank"
     const val KEY_ID = "id"
     const val KEY_BOOK = "book"
@@ -14,6 +15,9 @@ object Constants {
 
     const val ACTION_CREATE = "create"
     const val ACTION_UPDATE = "update"
+
+    const val INDEX_EDIT = 0
+    const val INDEX_DELETE = 1
 
     const val FIELD_NAME = "name"
     const val FIELD_BANK = "bank"
