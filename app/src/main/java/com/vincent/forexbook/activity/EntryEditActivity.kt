@@ -53,7 +53,7 @@ class EntryEditActivity : AppCompatActivity() {
     private val entryTypeCheckListener = RadioGroup.OnCheckedChangeListener { radioGroup, checkedId ->
         when (checkedId) {
             R.id.radioInterestCredit -> {
-                tilTwdAmt.visibility = View.GONE
+                tilTwdAmt.visibility = View.INVISIBLE
                 editTwdAmt.text = null
             }
             else -> tilTwdAmt.visibility = View.VISIBLE
@@ -131,12 +131,20 @@ class EntryEditActivity : AppCompatActivity() {
     private fun setEntryDataToField(entry: EntryVO) {
         when {
             entry.entryType == EntryType.DEBIT -> radioFcyDebit.isChecked = true
-            entry.twdAmt == 0 -> radioInterestCredit.isChecked = true
+            entry.twdAmt == 0 -> {
+                radioInterestCredit.isChecked = true
+                tilTwdAmt.visibility = View.INVISIBLE
+            }
             else -> radioFcyCredit.isChecked = true
         }
 
+        var fcyAmtStr = abs(entry.fcyAmt).toString()
+        if (fcyAmtStr.endsWith(".0")) {
+            fcyAmtStr = fcyAmtStr.substring(0, fcyAmtStr.indexOf(".0"))
+        }
+
         editDate.setText(FormatUtils.formatDate(entry.transactionDate))
-        editFcyAmt.setText(abs(entry.fcyAmt).toString())
+        editFcyAmt.setText(fcyAmtStr)
         editTwdAmt.setText(abs(entry.twdAmt).toString())
     }
 
