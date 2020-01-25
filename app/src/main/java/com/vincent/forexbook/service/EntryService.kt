@@ -1,5 +1,6 @@
 package com.vincent.forexbook.service
 
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
@@ -13,7 +14,7 @@ import java.util.*
 
 object EntryService {
 
-    private var collection = FirebaseFirestore.getInstance().collection(Constants.COLLECTION_ENTRY)
+    private val collection = FirebaseFirestore.getInstance().collection(Constants.COLLECTION_ENTRY)
 
     fun createEntry(entryPO: EntryPO, clientCallback: GeneralCallback<EntryVO>) {
         entryPO.creator = AuthenticationService.getUserId()!!
@@ -40,6 +41,19 @@ object EntryService {
                 val entries = EntityConverter.convertToEntryVOs(snapshots)
 
                 clientCallback.onFinish(entries)
+            }
+            .addOnFailureListener { clientCallback.onException(it) }
+    }
+
+    fun loadEntryDocuments(bookId: String, clientCallback: GeneralCallback<List<DocumentReference>>) {
+        collection
+            .whereEqualTo(Constants.FIELD_BOOK_ID, bookId)
+            .get()
+            .addOnSuccessListener {
+                val snapshots = it.documents
+                val documentReferences = EntityConverter.toEntryDocuments(snapshots, collection)
+
+                clientCallback.onFinish(documentReferences)
             }
             .addOnFailureListener { clientCallback.onException(it) }
     }

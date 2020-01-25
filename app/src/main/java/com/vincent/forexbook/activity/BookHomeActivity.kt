@@ -127,7 +127,8 @@ class BookHomeActivity : AppCompatActivity() {
             Toast.makeText(this@BookHomeActivity, getString(R.string.message_delete_completed), Toast.LENGTH_SHORT).show()
             dialogWaiting.dismiss()
 
-            // TODO: back to book list activity
+            // TODO: back to book list fragment
+            val bookId = data!!
         }
 
         override fun onException(e: Exception) {

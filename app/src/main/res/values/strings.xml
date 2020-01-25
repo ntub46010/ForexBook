@@ -39,7 +39,7 @@
     <string name="message_update_successful">更新成功</string>
     <string name="message_delete_completed">刪除完成</string>
     <string name="message_delete_entry_confirm">確定要刪除這筆帳目嗎？此舉無法復原。</string>
-    <string name="message_delete_book_confirm">確定要刪除這本帳簿嗎？此舉無法復原。</string>
+    <string name="message_delete_book_confirm">確定要刪除這本帳簿及相關帳目嗎？此舉無法復原。</string>
     <string name="message_please_wait">請稍後…</string>
     <string name="message_no_entry_type">請選擇帳目種類</string>
     <string name="message_short_balance">餘額不足</string>

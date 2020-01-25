@@ -1,5 +1,7 @@
 package com.vincent.forexbook.util
 
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.vincent.forexbook.Constants
 import com.vincent.forexbook.entity.*
@@ -39,6 +41,13 @@ object EntityConverter {
             map[Constants.FIELD_TWD_AMT] as Long,
             CurrencyType.valueOf(map[Constants.FIELD_CURRENCY_TYPE].toString()),
             snapshot.getDate(Constants.FIELD_TRANSACTION_DATE)!!)
+    }
+
+    fun toEntryDocuments(snapshots: List<DocumentSnapshot>,
+                         collection: CollectionReference): List<DocumentReference> {
+        return snapshots.asSequence()
+            .map { collection.document(it.id)}
+            .toList()
     }
 
 }
