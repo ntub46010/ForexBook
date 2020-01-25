@@ -42,4 +42,8 @@ object BookService {
             }
             .addOnFailureListener { clientCallback.onException(it) }
     }
+
+    fun deleteBook(id: String, clientCallback: GeneralCallback<String>) {
+        clientCallback.onFinish(id)
+    }
 }
