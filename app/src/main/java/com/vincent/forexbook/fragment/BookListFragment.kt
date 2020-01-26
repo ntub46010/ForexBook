@@ -1,16 +1,15 @@
 package com.vincent.forexbook.fragment
 
 import android.app.Dialog
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import com.google.android.material.textfield.TextInputLayout
+import com.vincent.forexbook.BookEditDialog
 import com.vincent.forexbook.Constants
 import com.vincent.forexbook.GeneralCallback
 import com.vincent.forexbook.R
@@ -27,11 +26,8 @@ import java.util.*
 class BookListFragment : Fragment() {
 
     private lateinit var tilBookName: TextInputLayout
-    private lateinit var editBookName: EditText
-    private lateinit var spinnerBank: Spinner
-    private lateinit var spinnerCurrencyType: Spinner
 
-    private lateinit var dialogCreateBook: AlertDialog
+    private lateinit var dialogCreateBook: BookEditDialog
     private lateinit var dialogWaiting: Dialog
 
     private val bookItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
@@ -42,61 +38,23 @@ class BookListFragment : Fragment() {
         startActivityForResult(intent, Constants.REQUEST_ACCESS_BOOK)
     }
 
-    private val dialogShowListener = DialogInterface.OnShowListener {
-        tilBookName.error = null
-        editBookName.text = null
-        spinnerCurrencyType.setSelection(0)
-
-        // button is available after dialog shows
-        dialogCreateBook.getButton(DialogInterface.BUTTON_POSITIVE)
-            .setOnClickListener(dialogCreateClickListener)
-    }
-
-    private val spinnerBankListener = object : AdapterView.OnItemSelectedListener {
-        override fun onNothingSelected(parent: AdapterView<*>?) {
-
-        }
-
-        override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-            val bank = Bank.findByChineseName(parent?.selectedItem.toString())!!
-            val currencyNames = bank.supportingCurrencyType.asSequence()
-                .map { it.getTitle() }
-                .toList()
-
-            val adapter = spinnerCurrencyType.adapter
-            if (adapter == null) {
-                spinnerCurrencyType.adapter = ArrayAdapter(context!!,
-                    android.R.layout.simple_spinner_dropdown_item, currencyNames)
-            } else {
-                adapter as ArrayAdapter<String>
-                adapter.clear()
-                adapter.addAll(currencyNames)
+    private val createBookClickListener = object : BookEditDialog.OnSubmitClickListener {
+        override fun onClick(bookName: String, bank: Bank, currencyType: CurrencyType) {
+            if (bookName.isEmpty()) {
+                tilBookName.error = context!!.getString(R.string.mandatory_field)
+                return
             }
 
-            spinnerCurrencyType.setSelection(0, true)
+            val request = BookPO(
+                bookName,
+                bank,
+                currencyType,
+                createdTime = Date())
+
+            dialogCreateBook.dismiss()
+            dialogWaiting.show()
+            BookService.createBook(request, bookCreatedListener)
         }
-    }
-
-    private val dialogCreateClickListener = View.OnClickListener {
-        val name = editBookName.text
-        if (name == null || name.isEmpty()) {
-            tilBookName.error = context!!.getString(R.string.mandatory_field)
-            return@OnClickListener
-        }
-
-        val strBank = spinnerBank.selectedItem.toString()
-        val strCurrencyType = spinnerCurrencyType.selectedItem.toString()
-        val currencyCode = strCurrencyType.split(" ")[1]
-
-        val request = BookPO(
-            name.toString(),
-            Bank.findByChineseName(strBank)!!,
-            CurrencyType.valueOf(currencyCode),
-            createdTime = Date())
-
-        dialogCreateBook.dismiss()
-        dialogWaiting.show()
-        BookService.createBook(request, bookCreatedListener)
     }
 
     private val bookCreatedListener = object : GeneralCallback<BookVO> {
@@ -120,7 +78,7 @@ class BookListFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        initCreateDialog()
+        initCreateBookDialog()
         initWaitingDialog()
         btnCreateBook.setOnClickListener { dialogCreateBook.show() }
         listBook.onItemClickListener = bookItemClickListener
@@ -157,27 +115,11 @@ class BookListFragment : Fragment() {
         }
     }
 
-    private fun initCreateDialog() {
-        val layout = LayoutInflater.from(context).inflate(R.layout.dialog_create_book, null)
-        tilBookName = layout.findViewById(R.id.tilBookName)
-        editBookName = layout.findViewById(R.id.editBookName)
-        spinnerBank = layout.findViewById(R.id.spinnerBank)
-        spinnerCurrencyType = layout.findViewById(R.id.spinnerCurrencyType)
-
-        spinnerBank.adapter = ArrayAdapter(context!!,
-            android.R.layout.simple_spinner_dropdown_item, Bank.getChineseNames())
-        spinnerBank.setSelection(0, true)
-        spinnerBank.onItemSelectedListener = spinnerBankListener
-
-        dialogCreateBook = AlertDialog.Builder(context!!)
-            .setTitle(getString(R.string.title_create_book))
-            .setMessage(getString(R.string.desc_create_book))
-            .setView(layout)
-            .setPositiveButton(getString(R.string.ok), null)
-            .setNegativeButton(getString(R.string.cancel), null)
-            .create()
-
-        dialogCreateBook.setOnShowListener(dialogShowListener)
+    private fun initCreateBookDialog() {
+        dialogCreateBook = BookEditDialog(context!!,
+            getString(R.string.title_create_book), getString(R.string.desc_create_book))
+        dialogCreateBook.setSubmitOnClickListener(createBookClickListener)
+        tilBookName = dialogCreateBook.getView().findViewById(R.id.tilBookName)
     }
 
     private fun initWaitingDialog() {
