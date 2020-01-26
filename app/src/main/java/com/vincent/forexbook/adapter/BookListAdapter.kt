@@ -44,4 +44,15 @@ class BookListAdapter(private val context: Context,
         notifyDataSetChanged()
     }
 
+    fun removeItem(bookId: String) {
+        val book = books.asSequence()
+            .filter { it.id == bookId }
+            .firstOrNull()
+
+        if (book != null) {
+            books.remove(book)
+            notifyDataSetChanged()
+        }
+    }
+
 }

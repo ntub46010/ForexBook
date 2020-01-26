@@ -39,7 +39,7 @@ class BookListFragment : Fragment() {
 
         val intent = Intent(context!!, BookHomeActivity::class.java)
         intent.putExtra(Constants.KEY_BOOK, book)
-        startActivity(intent)
+        startActivityForResult(intent, Constants.REQUEST_ACCESS_BOOK)
     }
 
     private val dialogShowListener = DialogInterface.OnShowListener {
@@ -184,6 +184,19 @@ class BookListFragment : Fragment() {
         dialogWaiting = Dialog(context!!)
         dialogWaiting.setContentView(R.layout.dialog_waiting)
         dialogWaiting.setCancelable(false)
+    }
+
+    private fun onNotifyBookDeleted(data: Intent?) {
+        val bookId = data?.getStringExtra(Constants.KEY_BOOK_ID) ?: return
+        (listBook.adapter as BookListAdapter).removeItem(bookId)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == Constants.REQUEST_ACCESS_BOOK && resultCode == Constants.RESULT_DELETE_BOOK) {
+            onNotifyBookDeleted(data)
+        }
     }
 
 }
