@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog
 import com.google.android.material.textfield.TextInputLayout
 import com.vincent.forexbook.entity.Bank
 import com.vincent.forexbook.entity.BookVO
+import com.vincent.forexbook.entity.CurrencyType
 
 class BookEditDialog(context: Context,
                      title: String,
@@ -22,20 +23,47 @@ class BookEditDialog(context: Context,
     private lateinit var editBookName: EditText
     private lateinit var spinnerBank: Spinner
     private lateinit var spinnerCurrencyType: Spinner
+    private var layout: View
 
-    private var submitOnClickListener: DialogInterface.OnClickListener? = null
+    private val bankSelectedListener = object : AdapterView.OnItemSelectedListener {
+        override fun onNothingSelected(parent: AdapterView<*>?) {
+
+        }
+
+        override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+            val bank = Bank.findByChineseName(parent?.selectedItem.toString())!!
+            val currencyNames = bank.supportingCurrencyType.asSequence()
+                .map { it.getTitle() }
+                .toList()
+
+            val adapter = spinnerCurrencyType.adapter
+            if (adapter == null) {
+                spinnerCurrencyType.adapter = ArrayAdapter(context,
+                    android.R.layout.simple_spinner_dropdown_item, currencyNames)
+            } else {
+                adapter as ArrayAdapter<String>
+                adapter.clear()
+                adapter.addAll(currencyNames)
+            }
+
+            spinnerCurrencyType.setSelection(0, true)
+        }
+    }
+
+    interface OnSubmitClickListener {
+        fun onClick(bookName: String, bank: Bank, currencyType: CurrencyType)
+    }
 
     init {
         setTitle(title)
         setMessage(message)
 
-        val layout = findView()
+        layout = initLayout()
         setView(layout)
         initBankSpinner()
 
-        setButton(DialogInterface.BUTTON_POSITIVE, context.getString(R.string.ok), submitOnClickListener)
-        setButton(DialogInterface.BUTTON_NEGATIVE, context.getString(R.string.cancel))
-            { dialogInterface, which -> }
+        setButton(DialogInterface.BUTTON_POSITIVE, context.getString(R.string.ok), null as DialogInterface.OnClickListener?)
+        setButton(DialogInterface.BUTTON_NEGATIVE, context.getString(R.string.cancel), null as DialogInterface.OnClickListener?)
     }
 
     override fun show() {
@@ -59,11 +87,26 @@ class BookEditDialog(context: Context,
         spinnerCurrencyType.setSelection(currencyTypeIndex)
     }
 
-    fun setSubmitOnClickListener(listener: DialogInterface.OnClickListener) {
-        submitOnClickListener = listener
+    fun setSubmitOnClickListener(listener: OnSubmitClickListener) {
+        val dialogListener = DialogInterface.OnClickListener { dialogInterface, wiich ->
+            val bookName = editBookName.text.toString()
+
+            val bankStr = spinnerBank.selectedItem.toString()
+            val bank = Bank.findByChineseName(bankStr)!!
+
+            val currencyTypeStr = spinnerCurrencyType.selectedItem.toString()
+            val currencyCode = currencyTypeStr.split(" ")[1]
+            val currencyType = CurrencyType.valueOf(currencyCode)
+
+            listener.onClick(bookName, bank, currencyType)
+        }
+
+        setButton(DialogInterface.BUTTON_POSITIVE, context.getString(R.string.ok), dialogListener)
     }
 
-    private fun findView(): View {
+    fun getView() = layout
+
+    private fun initLayout(): View {
         val layout = LayoutInflater.from(context).inflate(R.layout.dialog_create_book, null)
         tilBookName = layout.findViewById(R.id.tilBookName)
         editBookName = layout.findViewById(R.id.editBookName)
@@ -77,33 +120,7 @@ class BookEditDialog(context: Context,
         spinnerBank.adapter = ArrayAdapter(context,
             android.R.layout.simple_spinner_dropdown_item, Bank.getChineseNames())
         spinnerBank.setSelection(0, true)
-        spinnerBank.onItemSelectedListener = getBankSelectedListener()
+        spinnerBank.onItemSelectedListener = bankSelectedListener
     }
 
-    private fun getBankSelectedListener(): AdapterView.OnItemSelectedListener {
-        return object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-
-            }
-
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val bank = Bank.findByChineseName(parent?.selectedItem.toString())!!
-                val currencyNames = bank.supportingCurrencyType.asSequence()
-                    .map { it.getTitle() }
-                    .toList()
-
-                val adapter = spinnerCurrencyType.adapter
-                if (adapter == null) {
-                    spinnerCurrencyType.adapter = ArrayAdapter(context,
-                        android.R.layout.simple_spinner_dropdown_item, currencyNames)
-                } else {
-                    adapter as ArrayAdapter<String>
-                    adapter.clear()
-                    adapter.addAll(currencyNames)
-                }
-
-                spinnerCurrencyType.setSelection(0, true)
-            }
-        }
-    }
 }
