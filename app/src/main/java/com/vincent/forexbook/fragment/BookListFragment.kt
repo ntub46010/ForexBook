@@ -38,8 +38,8 @@ class BookListFragment : Fragment() {
         startActivityForResult(intent, Constants.REQUEST_ACCESS_BOOK)
     }
 
-    private val createBookClickListener = object : BookEditDialog.OnSubmitClickListener {
-        override fun onClick(bookName: String, bank: Bank, currencyType: CurrencyType) {
+    private val createBookClickListener = object : BookEditDialog.OnSubmitListener {
+        override fun onSubmit(bookName: String, bank: Bank, currencyType: CurrencyType) {
             if (bookName.isEmpty()) {
                 tilBookName.error = context!!.getString(R.string.mandatory_field)
                 return

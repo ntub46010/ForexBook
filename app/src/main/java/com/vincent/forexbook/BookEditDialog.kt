@@ -50,8 +50,8 @@ class BookEditDialog(context: Context,
         }
     }
 
-    interface OnSubmitClickListener {
-        fun onClick(bookName: String, bank: Bank, currencyType: CurrencyType)
+    interface OnSubmitListener {
+        fun onSubmit(bookName: String, bank: Bank, currencyType: CurrencyType)
     }
 
     init {
@@ -62,7 +62,7 @@ class BookEditDialog(context: Context,
         setView(layout)
         initBankSpinner()
 
-        setButton(DialogInterface.BUTTON_POSITIVE, context.getString(R.string.ok), null as DialogInterface.OnClickListener?)
+        setButton(DialogInterface.BUTTON_POSITIVE, context.getString(R.string.submit), null as DialogInterface.OnClickListener?)
         setButton(DialogInterface.BUTTON_NEGATIVE, context.getString(R.string.cancel), null as DialogInterface.OnClickListener?)
     }
 
@@ -87,8 +87,8 @@ class BookEditDialog(context: Context,
         spinnerCurrencyType.setSelection(currencyTypeIndex)
     }
 
-    fun setSubmitOnClickListener(listener: OnSubmitClickListener) {
-        val dialogListener = DialogInterface.OnClickListener { dialogInterface, wiich ->
+    fun setSubmitOnClickListener(listener: OnSubmitListener) {
+        val dialogListener = View.OnClickListener {
             val bookName = editBookName.text.toString()
 
             val bankStr = spinnerBank.selectedItem.toString()
@@ -98,10 +98,15 @@ class BookEditDialog(context: Context,
             val currencyCode = currencyTypeStr.split(" ")[1]
             val currencyType = CurrencyType.valueOf(currencyCode)
 
-            listener.onClick(bookName, bank, currencyType)
+            listener.onSubmit(bookName, bank, currencyType)
         }
 
-        setButton(DialogInterface.BUTTON_POSITIVE, context.getString(R.string.ok), dialogListener)
+        setOnShowListener {
+            tilBookName.error = null
+
+            // button is available after dialog shows
+            getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(dialogListener)
+        }
     }
 
     fun getView() = layout

@@ -12,6 +12,8 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import android.widget.Toast
+import com.google.android.material.textfield.TextInputLayout
+import com.vincent.forexbook.BookEditDialog
 import com.vincent.forexbook.Constants
 import com.vincent.forexbook.GeneralCallback
 import com.vincent.forexbook.R
@@ -32,6 +34,9 @@ class BookHomeActivity : AppCompatActivity() {
     private val DEFAULT_INDEX = -1
     private var selectedEntryIndex = DEFAULT_INDEX
 
+    private lateinit var tilBookName: TextInputLayout
+
+    private lateinit var editBookDialog: BookEditDialog
     private lateinit var entryActionDialog: Dialog
     private lateinit var deleteEntryConfirmDialog: Dialog
     private lateinit var deleteBookConfirmDialog: Dialog
@@ -75,6 +80,25 @@ class BookHomeActivity : AppCompatActivity() {
 
         override fun onException(e: Exception) {
             Toast.makeText(this@BookHomeActivity, e.message, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private val submitBookClickListener = object : BookEditDialog.OnSubmitListener {
+        override fun onSubmit(bookName: String, bank: Bank, currencyType: CurrencyType) {
+            if (bookName.isEmpty()) {
+                tilBookName.error = getString(R.string.mandatory_field)
+                return
+            }
+
+            val bookInfo = mapOf(
+                Constants.FIELD_NAME to bookName,
+                Constants.FIELD_BANK to bank,
+                Constants.FIELD_CURRENCY_TYPE to currencyType)
+
+            editBookDialog.dismiss()
+            Toast.makeText(this@BookHomeActivity, bookInfo.toString(), Toast.LENGTH_SHORT).show()
+            //dialogWaiting.show()
+            // TODO: call BookService
         }
     }
 
@@ -175,6 +199,7 @@ class BookHomeActivity : AppCompatActivity() {
         book = bundle.getSerializable(Constants.KEY_BOOK) as BookVO
 
         initToolbar(book.name)
+        initCreateBookDialog()
         initDeleteBookConfirmDialog()
         initEntryActionDialog()
         initDeleteEntryConfirmDialog()
@@ -228,6 +253,13 @@ class BookHomeActivity : AppCompatActivity() {
         dialogWaiting = Dialog(this)
         dialogWaiting.setContentView(R.layout.dialog_waiting)
         dialogWaiting.setCancelable(false)
+    }
+
+    private fun initCreateBookDialog() {
+        editBookDialog = BookEditDialog(this,
+            getString(R.string.title_create_book), getString(R.string.desc_create_book))
+        editBookDialog.setSubmitOnClickListener(submitBookClickListener)
+        tilBookName = editBookDialog.getView().findViewById(R.id.tilBookName)
     }
 
     private fun displayEntries(entries: List<EntryVO>) {
@@ -298,8 +330,7 @@ class BookHomeActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {
-            R.id.action_edit ->
-                Toast.makeText(this, getString(R.string.edit), Toast.LENGTH_SHORT).show()
+            R.id.action_edit -> editBookDialog.show(book)
             R.id.action_delete -> deleteBookConfirmDialog.show()
         }
 
