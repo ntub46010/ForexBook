@@ -58,8 +58,7 @@ object BookService {
                 }
                 .addOnFailureListener { clientCallback.onException(it) }
         } else {
-            // TODO: update book and entries, do nothing so far
-            clientCallback.onFinish(book)
+            patchBookAndRelatedEntry(book, bookInfo, clientCallback)
         }
     }
 
@@ -76,6 +75,41 @@ object BookService {
         }
 
         EntryService.loadEntryDocuments(id, entryDocumentsLoadedListener)
+    }
+
+    private fun patchBookAndRelatedEntry(book: BookVO, bookInfo: Map<String, Any>,
+                                         clientCallback: GeneralCallback<BookVO>) {
+        val entryDocumentsLoadedCallback = object : GeneralCallback<List<DocumentReference>> {
+            override fun onFinish(data: List<DocumentReference>?) {
+                val entryDocs = data ?: emptyList()
+                patchBookAndRelatedEntry(book, bookInfo, entryDocs, clientCallback)
+            }
+
+            override fun onException(e: Exception) {
+                clientCallback.onException(e)
+            }
+        }
+
+        EntryService.loadEntryDocuments(book.id, entryDocumentsLoadedCallback)
+    }
+
+    private fun patchBookAndRelatedEntry(book: BookVO, bookInfo: Map<String, Any>,
+                                         entryDocuments: List<DocumentReference>,
+                                         clientCallback: GeneralCallback<BookVO>) {
+        val bookDoc = collection.document(book.id)
+        val currencyType = bookInfo[Constants.FIELD_CURRENCY_TYPE] as CurrencyType
+
+        val writeBatch = FirebaseFirestore.getInstance().batch()
+        bookInfo.forEach { (field, value) -> writeBatch.update(bookDoc, field, value) }
+        entryDocuments.forEach { writeBatch.update(it, Constants.FIELD_CURRENCY_TYPE, currencyType) }
+
+        writeBatch
+            .commit()
+            .addOnSuccessListener {
+                val updatedBook = mergeBookInfo(book, bookInfo)
+                clientCallback.onFinish(updatedBook)
+            }
+            .addOnFailureListener { clientCallback.onException(it) }
     }
 
     private fun deleteBook(bookId: String, entryDocuments: List<DocumentReference>,
