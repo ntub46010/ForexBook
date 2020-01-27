@@ -161,7 +161,10 @@ class BookHomeActivity : AppCompatActivity() {
             book = data!!
             toolbar.title = book.name
             EntryService.loadEntries(book.id, entriesLoadedCallback)
-            // TODO: set activity result
+
+            val intent = Intent()
+            intent.putExtra(Constants.KEY_BOOK, book)
+            setResult(Constants.RESULT_UPDATE_BOOK, intent)
         }
 
         override fun onException(e: Exception) {

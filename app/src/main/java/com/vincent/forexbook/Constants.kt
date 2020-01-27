@@ -5,7 +5,8 @@ object Constants {
     const val REQUEST_CREATE_ENTRY = 2
     const val REQUEST_EDIT_ENTRY = 3
     const val REQUEST_ACCESS_BOOK = 4
-    const val RESULT_DELETE_BOOK = 5
+    const val RESULT_UPDATE_BOOK = 5
+    const val RESULT_DELETE_BOOK = 6
 
     const val KEY_DEFAULT_BANK = "defaultBank"
     const val KEY_BOOK_ID = "bookId"

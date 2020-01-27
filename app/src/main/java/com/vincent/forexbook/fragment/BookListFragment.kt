@@ -128,6 +128,11 @@ class BookListFragment : Fragment() {
         dialogWaiting.setCancelable(false)
     }
 
+    private fun onNotifyBookUpdated(data: Intent?) {
+        val book = data?.getSerializableExtra(Constants.KEY_BOOK) as BookVO
+        (listBook.adapter as BookListAdapter).replaceItem(book)
+    }
+
     private fun onNotifyBookDeleted(data: Intent?) {
         val bookId = data?.getStringExtra(Constants.KEY_BOOK_ID) ?: return
         (listBook.adapter as BookListAdapter).removeItem(bookId)
@@ -136,7 +141,9 @@ class BookListFragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (requestCode == Constants.REQUEST_ACCESS_BOOK && resultCode == Constants.RESULT_DELETE_BOOK) {
+        if (requestCode == Constants.REQUEST_ACCESS_BOOK && resultCode == Constants.RESULT_UPDATE_BOOK) {
+            onNotifyBookUpdated(data)
+        } else if (requestCode == Constants.REQUEST_ACCESS_BOOK && resultCode == Constants.RESULT_DELETE_BOOK) {
             onNotifyBookDeleted(data)
         }
     }
