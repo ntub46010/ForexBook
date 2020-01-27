@@ -3,10 +3,13 @@ package com.vincent.forexbook.service
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.SetOptions
 import com.vincent.forexbook.Constants
 import com.vincent.forexbook.GeneralCallback
+import com.vincent.forexbook.entity.Bank
 import com.vincent.forexbook.entity.BookVO
 import com.vincent.forexbook.entity.BookPO
+import com.vincent.forexbook.entity.CurrencyType
 import com.vincent.forexbook.util.EntityConverter
 
 object BookService {
@@ -45,7 +48,19 @@ object BookService {
     }
 
     fun patchBook(book: BookVO, bookInfo: Map<String, Any>, clientCallback: GeneralCallback<BookVO>) {
-        clientCallback.onFinish(book)
+        if (book.currencyType == bookInfo[Constants.FIELD_CURRENCY_TYPE]) {
+            collection
+                .document(book.id)
+                .set(bookInfo, SetOptions.merge())
+                .addOnSuccessListener {
+                    val updatedBook = mergeBookInfo(book, bookInfo)
+                    clientCallback.onFinish(updatedBook)
+                }
+                .addOnFailureListener { clientCallback.onException(it) }
+        } else {
+            // TODO: update book and entries, do nothing so far
+            clientCallback.onFinish(book)
+        }
     }
 
     fun deleteBook(id: String, clientCallback: GeneralCallback<String>) {
@@ -74,5 +89,12 @@ object BookService {
             .commit()
             .addOnSuccessListener { clientCallback.onFinish(bookId) }
             .addOnFailureListener { clientCallback.onException(it) }
+    }
+
+    private fun mergeBookInfo(book: BookVO, bookInfo: Map<String, Any>): BookVO {
+        return book.copy(
+            name = bookInfo[Constants.FIELD_NAME].toString(),
+            bank = bookInfo[Constants.FIELD_BANK] as Bank,
+            currencyType = bookInfo[Constants.FIELD_CURRENCY_TYPE] as CurrencyType)
     }
 }

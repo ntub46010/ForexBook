@@ -150,6 +150,7 @@ class BookHomeActivity : AppCompatActivity() {
         override fun onFinish(data: BookVO?) {
             dialogWaiting.dismiss()
 
+            prgBar.visibility = View.VISIBLE
             listEntry.visibility = View.INVISIBLE
             txtForeignBalance.visibility = View.INVISIBLE
             txtForeignCurrency.visibility = View.INVISIBLE
@@ -158,7 +159,9 @@ class BookHomeActivity : AppCompatActivity() {
             txtROIRate.visibility = View.INVISIBLE
 
             book = data!!
+            toolbar.title = book.name
             EntryService.loadEntries(book.id, entriesLoadedCallback)
+            // TODO: set activity result
         }
 
         override fun onException(e: Exception) {
