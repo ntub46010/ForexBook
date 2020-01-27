@@ -44,6 +44,10 @@ object BookService {
             .addOnFailureListener { clientCallback.onException(it) }
     }
 
+    fun patchBook(book: BookVO, bookInfo: Map<String, Any>, clientCallback: GeneralCallback<BookVO>) {
+        clientCallback.onFinish(book)
+    }
+
     fun deleteBook(id: String, clientCallback: GeneralCallback<String>) {
         val entryDocumentsLoadedListener = object : GeneralCallback<List<DocumentReference>> {
             override fun onFinish(data: List<DocumentReference>?) {
