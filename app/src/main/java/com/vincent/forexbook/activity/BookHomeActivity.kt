@@ -12,6 +12,8 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import android.widget.Toast
+import com.google.android.material.textfield.TextInputLayout
+import com.vincent.forexbook.BookEditDialog
 import com.vincent.forexbook.Constants
 import com.vincent.forexbook.GeneralCallback
 import com.vincent.forexbook.R
@@ -32,6 +34,9 @@ class BookHomeActivity : AppCompatActivity() {
     private val DEFAULT_INDEX = -1
     private var selectedEntryIndex = DEFAULT_INDEX
 
+    private lateinit var tilBookName: TextInputLayout
+
+    private lateinit var editBookDialog: BookEditDialog
     private lateinit var entryActionDialog: Dialog
     private lateinit var deleteEntryConfirmDialog: Dialog
     private lateinit var deleteBookConfirmDialog: Dialog
@@ -78,6 +83,25 @@ class BookHomeActivity : AppCompatActivity() {
         }
     }
 
+    private val editBookSubmitListener = object : BookEditDialog.OnSubmitListener {
+        override fun onSubmit(bookName: String, bank: Bank, currencyType: CurrencyType) {
+            if (bookName.isEmpty()) {
+                tilBookName.error = getString(R.string.mandatory_field)
+                return
+            }
+
+            val bookInfo = mapOf(
+                Constants.FIELD_NAME to bookName,
+                Constants.FIELD_BANK to bank,
+                Constants.FIELD_CURRENCY_TYPE to currencyType)
+
+            editBookDialog.dismiss()
+            dialogWaiting.show()
+
+            BookService.patchBook(book, bookInfo, bookUpdatedCallback)
+        }
+    }
+
     @Deprecated("No need this listener so far")
     private val entryItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
         val entry = listEntry.adapter.getItem(position) as EntryVO
@@ -119,6 +143,33 @@ class BookHomeActivity : AppCompatActivity() {
             dialogWaiting.show()
             val entry = listEntry.adapter.getItem(selectedEntryIndex) as EntryVO
             EntryService.deleteEntry(entry.id, entryDeletedListener)
+        }
+    }
+
+    private val bookUpdatedCallback = object : GeneralCallback<BookVO> {
+        override fun onFinish(data: BookVO?) {
+            dialogWaiting.dismiss()
+
+            prgBar.visibility = View.VISIBLE
+            listEntry.visibility = View.INVISIBLE
+            txtForeignBalance.visibility = View.INVISIBLE
+            txtForeignCurrency.visibility = View.INVISIBLE
+            txtSellValue.visibility = View.INVISIBLE
+            txtROI.visibility = View.INVISIBLE
+            txtROIRate.visibility = View.INVISIBLE
+
+            book = data!!
+            toolbar.title = book.name
+            EntryService.loadEntries(book.id, entriesLoadedCallback)
+
+            val intent = Intent()
+            intent.putExtra(Constants.KEY_BOOK, book)
+            setResult(Constants.RESULT_UPDATE_BOOK, intent)
+        }
+
+        override fun onException(e: Exception) {
+            dialogWaiting.dismiss()
+            Toast.makeText(this@BookHomeActivity, e.message, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -175,6 +226,7 @@ class BookHomeActivity : AppCompatActivity() {
         book = bundle.getSerializable(Constants.KEY_BOOK) as BookVO
 
         initToolbar(book.name)
+        initEditBookDialog()
         initDeleteBookConfirmDialog()
         initEntryActionDialog()
         initDeleteEntryConfirmDialog()
@@ -230,6 +282,13 @@ class BookHomeActivity : AppCompatActivity() {
         dialogWaiting.setCancelable(false)
     }
 
+    private fun initEditBookDialog() {
+        editBookDialog = BookEditDialog(this,
+            getString(R.string.title_edit_book), getString(R.string.desc_create_book))
+        editBookDialog.setSubmitOnClickListener(editBookSubmitListener)
+        tilBookName = editBookDialog.getView().findViewById(R.id.tilBookName)
+    }
+
     private fun displayEntries(entries: List<EntryVO>) {
         val adapter = listEntry.adapter
 
@@ -238,6 +297,8 @@ class BookHomeActivity : AppCompatActivity() {
         } else {
             (listEntry.adapter as EntryListAdapter).setItems(entries)
         }
+
+        listEntry.visibility = View.VISIBLE
     }
 
     private fun displayDashboard(exchangeRate: ExchangeRate) {
@@ -261,6 +322,12 @@ class BookHomeActivity : AppCompatActivity() {
         txtSellValue.text = FormatUtils.formatMoney(twdSellValue)
         txtROI.text = FormatUtils.formatMoney(roi)
         txtROIRate.text = StringBuilder("($roiPercentage%)").toString()
+
+        txtForeignBalance.visibility = View.VISIBLE
+        txtForeignCurrency.visibility = View.VISIBLE
+        txtSellValue.visibility = View.VISIBLE
+        txtROI.visibility = View.VISIBLE
+        txtROIRate.visibility = View.VISIBLE
     }
 
     private fun onReceiveCreatedEntry(data: Intent?) {
@@ -298,8 +365,7 @@ class BookHomeActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {
-            R.id.action_edit ->
-                Toast.makeText(this, getString(R.string.edit), Toast.LENGTH_SHORT).show()
+            R.id.action_edit -> editBookDialog.show(book)
             R.id.action_delete -> deleteBookConfirmDialog.show()
         }
 

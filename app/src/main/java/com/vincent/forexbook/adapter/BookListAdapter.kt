@@ -44,6 +44,14 @@ class BookListAdapter(private val context: Context,
         notifyDataSetChanged()
     }
 
+    fun replaceItem(book: BookVO) {
+        val index = books.indexOfFirst { it.id == book.id }
+        if (index > -1) {
+            books[index] = book
+            notifyDataSetChanged()
+        }
+    }
+
     fun removeItem(bookId: String) {
         val book = books.asSequence()
             .filter { it.id == bookId }

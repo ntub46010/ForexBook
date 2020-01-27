@@ -30,6 +30,7 @@
     <string name="mandatory_field">必填欄位</string>
 
     <string name="title_create_book">建立帳簿</string>
+    <string name="title_edit_book">編輯帳簿</string>
     <string name="title_create_entry">建立新帳目</string>
     <string name="title_edit_entry">編輯帳目</string>
 
