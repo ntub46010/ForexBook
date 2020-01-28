@@ -1,6 +1,6 @@
 package com.vincent.forexbook.service
 
-import com.vincent.forexbook.CacheData
+import com.vincent.forexbook.cache.CacheData
 import com.vincent.forexbook.Constants
 import com.vincent.forexbook.NetworkClient
 import com.vincent.forexbook.GeneralCallback
