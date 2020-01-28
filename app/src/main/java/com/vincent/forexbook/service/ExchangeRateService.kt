@@ -21,7 +21,7 @@ object ExchangeRateService
     private const val updateInterval = 3
 
     fun loadExchangeRates(bank: Bank, clientCallback: GeneralCallback<List<ExchangeRate>>) {
-        val cacheData = getCache(bank)
+        val cacheData = loadCache(bank)
         if (cacheData != null) {
             clientCallback.onFinish(cacheData.values.toList())
             return

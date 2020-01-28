@@ -6,13 +6,18 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
 import com.vincent.forexbook.Constants
 import com.vincent.forexbook.GeneralCallback
+import com.vincent.forexbook.cache.CacheData
+import com.vincent.forexbook.cache.ICacheService
 import com.vincent.forexbook.entity.Bank
 import com.vincent.forexbook.entity.BookVO
 import com.vincent.forexbook.entity.BookPO
 import com.vincent.forexbook.entity.CurrencyType
 import com.vincent.forexbook.util.EntityConverter
 
-object BookService {
+object BookService
+    : ICacheService<String, BookVO> {
+
+    override val cacheMap = mutableMapOf<String, CacheData<BookVO>>()
 
     private val collection = FirebaseFirestore.getInstance().collection(Constants.COLLECTION_BOOK)
 
@@ -24,7 +29,8 @@ object BookService {
             .addOnSuccessListener { docRef ->
                 docRef.get().addOnSuccessListener { snapshot ->
                     val book = EntityConverter.convertToBookVO(snapshot)
-                    // TODO: save in cache
+                    saveCache(book.id, book)
+
                     clientCallback.onFinish(book)
                 }
             }
@@ -32,6 +38,12 @@ object BookService {
     }
 
     fun loadBooks(clientCallback: GeneralCallback<List<BookVO>>) {
+        val cache = loadAllCache()
+        if (cache.isNotEmpty()) {
+            clientCallback.onFinish(cache)
+            return
+        }
+
         val userId = AuthenticationService.getUserId()!!
 
         collection
@@ -41,6 +53,7 @@ object BookService {
             .addOnSuccessListener { querySnapshot ->
                 val snapshots = querySnapshot.documents
                 val books = EntityConverter.convertToBookVOs(snapshots)
+                books.forEach { saveCache(it.id, it) }
 
                 clientCallback.onFinish(books)
             }
@@ -54,6 +67,8 @@ object BookService {
                 .set(bookInfo, SetOptions.merge())
                 .addOnSuccessListener {
                     val updatedBook = mergeBookInfo(book, bookInfo)
+                    saveCache(updatedBook.id, updatedBook)
+
                     clientCallback.onFinish(updatedBook)
                 }
                 .addOnFailureListener { clientCallback.onException(it) }
@@ -107,6 +122,8 @@ object BookService {
             .commit()
             .addOnSuccessListener {
                 val updatedBook = mergeBookInfo(book, bookInfo)
+                saveCache(updatedBook.id, updatedBook)
+
                 clientCallback.onFinish(updatedBook)
             }
             .addOnFailureListener { clientCallback.onException(it) }
@@ -121,7 +138,10 @@ object BookService {
 
         writeBatch
             .commit()
-            .addOnSuccessListener { clientCallback.onFinish(bookId) }
+            .addOnSuccessListener {
+                removeCache(bookId)
+                clientCallback.onFinish(bookId)
+            }
             .addOnFailureListener { clientCallback.onException(it) }
     }
 
