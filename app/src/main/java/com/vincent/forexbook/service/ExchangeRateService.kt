@@ -4,6 +4,7 @@ import com.vincent.forexbook.cache.CacheData
 import com.vincent.forexbook.Constants
 import com.vincent.forexbook.NetworkClient
 import com.vincent.forexbook.GeneralCallback
+import com.vincent.forexbook.cache.ICacheService
 import com.vincent.forexbook.entity.Bank
 import com.vincent.forexbook.entity.CurrencyType
 import com.vincent.forexbook.entity.ExchangeRate
@@ -13,13 +14,14 @@ import com.vincent.forexbook.util.nextClock
 import org.jsoup.Jsoup
 import java.util.*
 
-object ExchangeRateService {
+object ExchangeRateService
+    : ICacheService<Bank, Map<CurrencyType, ExchangeRate>> {
 
-    private val exchangeRateCache = EnumMap<Bank, CacheData<Map<CurrencyType, ExchangeRate>>>(Bank::class.java)
+    override val cacheMap = EnumMap<Bank, CacheData<Map<CurrencyType, ExchangeRate>>>(Bank::class.java)
     private const val updateInterval = 3
 
     fun loadExchangeRates(bank: Bank, clientCallback: GeneralCallback<List<ExchangeRate>>) {
-        val cacheData = getCacheData(bank)
+        val cacheData = getCache(bank)
         if (cacheData != null) {
             clientCallback.onFinish(cacheData.values.toList())
             return
@@ -43,7 +45,7 @@ object ExchangeRateService {
                     .map { it.currencyType to it }
                     .toMap()
 
-                saveCacheData(bank, CacheData(exchangeRateMap, cacheExpiredTime))
+                saveCache(bank, exchangeRateMap, cacheExpiredTime)
                 clientCallback.onFinish(exchangeRateList)
             }
 
@@ -114,23 +116,6 @@ object ExchangeRateService {
         }
 
         return exchangeRates
-    }
-
-    private fun getCacheData(bank: Bank): Map<CurrencyType, ExchangeRate>? {
-        val cache = exchangeRateCache[bank]
-
-        return when {
-            cache == null -> null
-            cache.isExpired() -> {
-                exchangeRateCache.remove(bank)
-                null
-            }
-            else -> cache.data
-        }
-    }
-
-    private fun saveCacheData(bank: Bank, cacheData: CacheData<Map<CurrencyType, ExchangeRate>>) {
-        exchangeRateCache[bank] = cacheData
     }
 
     private fun calcCacheExpiredTime(now: Date): Date {
